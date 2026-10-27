@@ -1,0 +1,1 @@
+powershell -ExecutionPolicy Bypass -File make_icons.ps1

@@ -1,6 +1,6 @@
 # Tag probe training (removed; how to bring it back)
 
-A "Training" page in Preferences used to let the app learn **custom tags** for a downloaded model, then search by those tags. It worked, but was removed on 2026-09-30 to keep the app simpler for now. The full code is archived in [`archive/training/`](archive/training/), and this document explains how it worked and how to restore or rebuild it.
+A "Training" page in Preferences used to let the app learn **custom tags** for a downloaded model, then search by those tags. It worked, but was removed on 2026-09-30 to keep the app simpler for now. The full code is archived in [`training/`](training/), and this document explains how it worked and how to restore or rebuild it.
 
 ## What it did
 
@@ -77,12 +77,12 @@ The **Check** button counted the images and showed which columns would be used, 
 
 | Path | What |
 |---|---|
-| `archive/training/src/Services/Probes/TagDataset.cs` | Parquet reading (column detection, row groups, list columns) |
-| `archive/training/src/Services/Probes/ProbeTrainer.cs` | Embedding cache, training loop, evaluation, progress |
-| `archive/training/src/Services/Probes/LinearProbe.cs` | Probe weights, inference, file format |
-| `archive/training/src/Services/Probes/ProbeStore.cs` | Saved probes per model (load, save, delete, change events) |
-| `archive/training/src/Services/Tools/TagProbeTool.cs` | The "· tags" search tool and query parsing |
-| `archive/training/training-shared-files.patch` | Everything the feature changed in shared files (see below) |
+| `training/src/Services/Probes/TagDataset.cs` | Parquet reading (column detection, row groups, list columns) |
+| `training/src/Services/Probes/ProbeTrainer.cs` | Embedding cache, training loop, evaluation, progress |
+| `training/src/Services/Probes/LinearProbe.cs` | Probe weights, inference, file format |
+| `training/src/Services/Probes/ProbeStore.cs` | Saved probes per model (load, save, delete, change events) |
+| `training/src/Services/Tools/TagProbeTool.cs` | The "· tags" search tool and query parsing |
+| `training/training-shared-files.patch` | Everything the feature changed in shared files (see below) |
 
 The patch re-adds:
 - the Training tab (`PreferencesWindow.axaml`, plus the dataset folder picker in `.axaml.cs`) and its view model section (`PreferencesViewModel`: dataset/model/settings, Check/Train/Cancel/Delete, trained probe list, probe tools in the default-tool list);
@@ -110,6 +110,6 @@ cp -r docs/archive/training/src/Services/Probes src/QuailImageSearch/Services/
 cp docs/archive/training/src/Services/Tools/TagProbeTool.cs src/QuailImageSearch/Services/Tools/
 ```
 
-Then build. This was verified the day it was removed: applying the patch and copying the files back into a copy of the tree reproduced the original files exactly, and the copy built. The patch was made against the code as it was then (uncommitted at the time). If the shared files have changed since, `git apply` may refuse some hunks; apply with `git apply --reject`, and merge the `.rej` parts by hand using the list above.
+Then build. This was verified the day it was removed: applying the patch and copying the files back into a copy of the tree reproduced the original files exactly, and the copy built. The patch was made against the code as it was then (uncommitted at the time). If the shared files have changed since, `git apply` may refuse some hunks; apply with `git apply --reject`, and merge the `.rej` parts by hand using the list above. The README was cut down on 2026-10-26, so its hunk will be rejected: add a short line to the README's feature list instead, and any technical details to `docs/technical-notes.md`.
 
 Trained probes and embedding caches from before the removal still work after restoring: they're only read, never deleted by the removal. The probes live in `%APPDATA%\QuailImageSearch\probes\`, and the caches in `.imagesearch-features\` next to each dataset.
