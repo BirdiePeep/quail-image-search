@@ -20,7 +20,23 @@ You can also search by image: right-click a result and choose **Find similar**, 
 
 On macOS, `Cmd` replaces `Ctrl`.
 
-## Setup
+## Download and install
+
+Download the file for your computer from the [latest release](https://github.com/BirdiePeep/quail-image-search/releases/latest). You don't need to install anything else.
+
+| Computer | File | How to install |
+|---|---|---|
+| Windows | `…-win-x64-setup.exe` (`win-arm64` for ARM PCs) | Run it. No admin rights needed. |
+| Mac (Apple Silicon) | `…-macos-arm64.zip` | Unzip it and move **Quail Image Search** to Applications. |
+| Linux | `…-linux-x64.tar.gz` | Extract it and run `QuailImageSearch` from that folder. To add it to the applications menu, run `./install-desktop-entry.sh` there. |
+
+The Windows and Mac downloads aren't signed yet, so the first time you open the app:
+- **Windows** shows "Windows protected your PC": click **More info**, then **Run anyway**.
+- **macOS** says it can't check the app: right-click it, choose **Open**, then **Open** again.
+
+There are also `.zip` versions for Windows that run without installing. Intel Macs aren't supported.
+
+## Building from source
 
 ### .NET SDK 10
 
@@ -32,7 +48,7 @@ dotnet --list-sdks
 
 If there's no `10.x` entry, install the .NET 10 SDK from https://dotnet.microsoft.com/download. On macOS you can use `brew install dotnet`. On Linux, use your distro's package or Microsoft's install script.
 
-## Build and run
+### Build and run
 
 ```bash
 dotnet run --project src/QuailImageSearch

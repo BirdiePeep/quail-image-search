@@ -2,7 +2,17 @@
 
 How to build the release packages. For working on the code, see [technical-notes.md](technical-notes.md).
 
-## Building
+## Publishing a release
+
+Releases are built and published by the **Release** GitHub Action ([.github/workflows/release.yml](../.github/workflows/release.yml)). On GitHub, open **Actions > Release > Run workflow**, pick which part of the version to increase (patch, minor or major), and run it. It:
+1. picks the version: the latest `vX.Y.Z` tag, increased by the chosen part. With no tags yet it uses `<Version>` from the project file. Raising `<Version>` above the latest tag also sets the next version directly;
+2. builds every platform with `build.ps1` on a Windows runner, installing Inno Setup if needed;
+3. checks that all six packages are there;
+4. creates the tag and a GitHub release with the packages and `SHA256SUMS.txt`, with notes generated from the commits since the last release.
+
+The tags are the record of released versions: `<Version>` in the project file isn't updated, so local builds keep that version unless you pass `-Version`.
+
+## Building locally
 
 `scripts\build.ps1` builds a release package for each platform into `artifacts\` (not checked in). All platforms can be built on Windows.
 
