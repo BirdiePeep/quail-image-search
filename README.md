@@ -2,6 +2,8 @@
 
 A desktop app for searching folders of images by describing what's in them ("a dog on a beach", "red car at night"). It runs on Windows, macOS and Linux, and everything happens on your computer.
 
+![Quail Image Search showing photos of animals found by searching for "animals"](docs/images/screenshot.png)
+
 ## How it works
 
 1. **Download a model.** On first start the app offers the recommended model (SigLIP B/16). Others (OpenAI CLIP, Apple MobileCLIP, Google SigLIP) are in Preferences > Models.

@@ -27,6 +27,7 @@ venv/
 
 # Local data: datasets, models and caches (the app keeps its own data in %APPDATA%\QuailImageSearch)
 datasets/
+sample-images/
 incomming-icons/
 .imagesearch-features/
 *.onnx
