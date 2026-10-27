@@ -1,0 +1,304 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:QuailImageSearch.ViewModels"
+        xmlns:models="using:QuailImageSearch.Services.Models"
+        xmlns:services="using:QuailImageSearch.Services"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="820" d:DesignHeight="600"
+        x:Class="QuailImageSearch.Views.PreferencesWindow"
+        x:DataType="vm:PreferencesViewModel"
+        Title="Preferences"
+        Width="860" Height="640" MinWidth="640" MinHeight="480"
+        WindowStartupLocation="CenterOwner">
+
+    <Window.Resources>
+        <DataTemplate x:Key="ModelCard" x:DataType="models:ModelEntry">
+            <Border Padding="12" Margin="0,0,0,8" CornerRadius="6"
+                    Background="{DynamicResource AppPanelBrush}">
+                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnSpacing="12">
+                    <TextBlock Text="{Binding Info.Name}" FontWeight="SemiBold" FontSize="15" />
+                    <StackPanel Grid.Row="1" Margin="0,2,0,4">
+                        <TextBlock Text="{Binding Info.Description}" Classes="hint" />
+                        <TextBlock Text="{Binding Info.LicenseNote}" Classes="hint" Foreground="{DynamicResource AppWarningBrush}"
+                                   IsVisible="{Binding Info.LicenseNote, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                    </StackPanel>
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="14">
+                        <TextBlock Classes="hint" Text="{Binding Info.FamilyText}" FontWeight="SemiBold" />
+                        <TextBlock Classes="hint" Text="{Binding Info.SizeText, StringFormat='Size: {0}'}" />
+                        <TextBlock Classes="hint" Text="{Binding Info.License, StringFormat='License: {0}'}" />
+                        <HyperlinkButton Content="License" NavigateUri="{Binding Info.LicenseUrl}" Padding="0" FontSize="12" />
+                        <HyperlinkButton Content="Source" NavigateUri="{Binding Info.SourceUrl}" Padding="0" FontSize="12" />
+                    </StackPanel>
+                    <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="10" Margin="0,6,0,0">
+                        <TextBlock Text="{Binding StatusText}" FontSize="12" VerticalAlignment="Center" />
+                        <ProgressBar Value="{Binding Progress}" Maximum="100" Width="180" MinWidth="0"
+                                     IsVisible="{Binding IsDownloading}" VerticalAlignment="Center" />
+                        <TextBlock Text="·" FontSize="12" Opacity="0.5" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding IndexSizeText, StringFormat='Search index: {0}'}" FontSize="12"
+                                   VerticalAlignment="Center" />
+                        <Button Content="Delete index" FontSize="12" Padding="8,1" VerticalAlignment="Center"
+                                IsVisible="{Binding HasIndex}"
+                                Command="{Binding $parent[Window].((vm:PreferencesViewModel)DataContext).DeleteModelIndexCommand}"
+                                CommandParameter="{Binding}" />
+                    </StackPanel>
+                    <StackPanel Grid.Row="4" Orientation="Horizontal" Spacing="10" Margin="0,4,0,0"
+                                IsVisible="{Binding IsInstalled}">
+                        <TextBlock Text="{Binding Calibration.StatusText}" FontSize="12" Opacity="0.85"
+                                   VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="520" />
+                        <Button Content="Recalibrate" FontSize="12" Padding="8,1" VerticalAlignment="Center"
+                                IsEnabled="{Binding !Calibration.IsRunning}"
+                                Command="{Binding $parent[Window].((vm:PreferencesViewModel)DataContext).RecalibrateModelCommand}"
+                                CommandParameter="{Binding}" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Grid.RowSpan="5" VerticalAlignment="Center" Spacing="6">
+                        <Button Content="Download" Classes="accent" HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Center" IsVisible="{Binding CanDownload}"
+                                Command="{Binding $parent[Window].((vm:PreferencesViewModel)DataContext).DownloadModelCommand}"
+                                CommandParameter="{Binding}" />
+                        <Button Content="Cancel" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                                IsVisible="{Binding IsDownloading}"
+                                Command="{Binding $parent[Window].((vm:PreferencesViewModel)DataContext).CancelModelDownloadCommand}"
+                                CommandParameter="{Binding}" />
+                        <Button Content="Delete" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                                IsVisible="{Binding IsInstalled}"
+                                Command="{Binding $parent[Window].((vm:PreferencesViewModel)DataContext).DeleteModelCommand}"
+                                CommandParameter="{Binding}" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </DataTemplate>
+    </Window.Resources>
+
+    <Window.Styles>
+        <Style Selector="TextBlock.label">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Opacity" Value="0.85" />
+        </Style>
+        <Style Selector="TextBlock.hint">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Opacity" Value="0.65" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+    </Window.Styles>
+
+    <DockPanel Margin="12">
+        <!-- OK / Cancel -->
+        <DockPanel DockPanel.Dock="Bottom" Margin="0,10,0,0">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8">
+                <Button Content="Save" Classes="accent" MinWidth="90" HorizontalContentAlignment="Center"
+                        Click="Save_Click" />
+                <Button Content="Cancel" MinWidth="90" HorizontalContentAlignment="Center" Click="Cancel_Click" />
+            </StackPanel>
+            <TextBlock Text="{Binding Error}" Foreground="{DynamicResource AppErrorBrush}" VerticalAlignment="Center"
+                       TextWrapping="Wrap" Margin="0,0,12,0" />
+        </DockPanel>
+
+        <TabControl x:Name="PageTabs">
+            <!-- General -->
+            <TabItem Header="General">
+                <StackPanel Spacing="12" Margin="0,12,0,0" MaxWidth="560" HorizontalAlignment="Left">
+                    <Grid ColumnDefinitions="170,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="10">
+                        <TextBlock Classes="label" Text="Default search tool" />
+                        <ComboBox Grid.Column="1" ItemsSource="{Binding ToolOptions}" MinWidth="260"
+                                  SelectedValueBinding="{Binding Id, x:DataType=vm:ToolOption}"
+                                  SelectedValue="{Binding DefaultToolId}"
+                                  DisplayMemberBinding="{Binding Name, x:DataType=vm:ToolOption}" />
+                        <TextBlock Grid.Row="1" Classes="label" Text="Default max results" />
+                        <NumericUpDown Grid.Row="1" Grid.Column="1" Value="{Binding DefaultMaxResults}"
+                                       Minimum="1" Maximum="100000" Increment="50" FormatString="0"
+                                       Width="160" HorizontalAlignment="Left" />
+                        <TextBlock Grid.Row="2" Classes="label" Text="Default min score" />
+                        <NumericUpDown Grid.Row="2" Grid.Column="1" Value="{Binding DefaultMinScore}"
+                                       Minimum="0" Maximum="100" Increment="5" FormatString="0.##"
+                                       Width="160" HorizontalAlignment="Left" />
+                    </Grid>
+                    <!-- Appearance: Avalonia's built-in themes. Light/dark and density preview immediately;
+                         the theme itself applies at the next start. -->
+                    <Grid ColumnDefinitions="170,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="10">
+                        <TextBlock Classes="label" Text="Theme" VerticalAlignment="Top" Margin="0,6,0,0" />
+                        <StackPanel Grid.Column="1" Spacing="4">
+                            <ComboBox ItemsSource="{x:Static vm:PreferencesViewModel.ThemeOptions}" MinWidth="260"
+                                      SelectedValueBinding="{Binding Value, x:DataType=services:AppearanceOption}"
+                                      SelectedValue="{Binding Theme}"
+                                      DisplayMemberBinding="{Binding Label, x:DataType=services:AppearanceOption}" />
+                            <TextBlock Classes="hint" Text="The new theme is used the next time Quail Image Search starts."
+                                       IsVisible="{Binding ThemeNeedsRestart}" />
+                        </StackPanel>
+                        <TextBlock Grid.Row="1" Classes="label" Text="Light or dark" />
+                        <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{x:Static vm:PreferencesViewModel.ThemeModeOptions}" MinWidth="260"
+                                  SelectedValueBinding="{Binding Value, x:DataType=services:AppearanceOption}"
+                                  SelectedValue="{Binding ThemeMode}"
+                                  DisplayMemberBinding="{Binding Label, x:DataType=services:AppearanceOption}" />
+                        <TextBlock Grid.Row="2" Classes="label" Text="Density" IsVisible="{Binding IsFluentTheme}" />
+                        <ComboBox Grid.Row="2" Grid.Column="1" ItemsSource="{x:Static vm:PreferencesViewModel.ThemeDensityOptions}" MinWidth="260"
+                                  IsVisible="{Binding IsFluentTheme}"
+                                  SelectedValueBinding="{Binding Value, x:DataType=services:AppearanceOption}"
+                                  SelectedValue="{Binding ThemeDensity}"
+                                  DisplayMemberBinding="{Binding Label, x:DataType=services:AppearanceOption}" />
+                    </Grid>
+                    <Grid ColumnDefinitions="170,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="4">
+                        <TextBlock Classes="label" Text="Use GPU" />
+                        <ComboBox Grid.Column="1" ItemsSource="{x:Static vm:PreferencesViewModel.GpuModeOptions}"
+                                  SelectedValueBinding="{Binding Mode, x:DataType=vm:GpuModeOption}"
+                                  SelectedValue="{Binding GpuMode}"
+                                  DisplayMemberBinding="{Binding Label, x:DataType=vm:GpuModeOption}" MinWidth="360" />
+                        <TextBlock Grid.Row="1" Grid.Column="1" Classes="hint"
+                                   Text="{x:Static vm:PreferencesViewModel.DetectedGpuText}" />
+                        <!-- Disclosure required by PRIVACY.md rule 2. -->
+                        <TextBlock Grid.Row="2" Grid.Column="1" Classes="hint"
+                                   Text="{x:Static vm:PreferencesViewModel.GpuPrivacyNote}"
+                                   IsVisible="{x:Static vm:PreferencesViewModel.HasGpuPrivacyNote}" />
+                    </Grid>
+                    <Grid ColumnDefinitions="170,*" RowDefinitions="Auto,Auto" RowSpacing="4">
+                        <TextBlock Classes="label" Text="GPU batch size" />
+                        <ComboBox Grid.Column="1" ItemsSource="{x:Static vm:PreferencesViewModel.GpuBatchSizeOptions}"
+                                  SelectedItem="{Binding GpuBatchSize}" MinWidth="120" />
+                        <TextBlock Grid.Row="1" Grid.Column="1" Classes="hint"
+                                   Text="Images per GPU call when indexing (default 32). Larger batches can be faster on cards with plenty of video memory, e.g. 64 on 8 GB or more; models above 256 px use half. If the GPU runs out of memory, the batch is halved automatically (shown in the debug log)." />
+                    </Grid>
+                    <TextBlock Classes="hint"
+                               Text="For downloaded models. In Auto, a model uses the GPU if the card has enough memory and passes a test run; 8-bit models always use the CPU. The device each model uses is shown in the tab's status line and the debug log." />
+                    <TextBlock Classes="hint"
+                               Text="Defaults apply to new tabs. Each tab can switch tools from its own dropdown. Scores are on a 0–100 scale for every calibrated tool (0 = unrelated, 100 = strong match), so one Min score works across models." />
+                </StackPanel>
+            </TabItem>
+
+            <!-- Models -->
+            <TabItem Header="Models">
+                <DockPanel Margin="0,12,0,0">
+                    <Border DockPanel.Dock="Top" Padding="12,8" Margin="0,0,0,10" CornerRadius="6"
+                            Background="{DynamicResource AppPanelBrush}">
+                        <DockPanel>
+                            <Button DockPanel.Dock="Right" Content="Delete all indexes" VerticalAlignment="Center"
+                                    Command="{Binding DeleteAllIndexesCommand}"
+                                    ToolTip.Tip="Frees the disk space; downloaded models are kept" />
+                            <StackPanel VerticalAlignment="Center" Spacing="2">
+                                <TextBlock Text="{Binding TotalIndexText}" FontWeight="SemiBold" />
+                                <TextBlock Classes="hint" Text="{Binding IndexMessage}"
+                                           IsVisible="{Binding IndexMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                            </StackPanel>
+                        </DockPanel>
+                    </Border>
+                    <!-- Indexes whose model isn't installed -->
+                    <Border DockPanel.Dock="Top" Padding="12,8" Margin="0,0,0,10" CornerRadius="6"
+                            BorderThickness="1" BorderBrush="{DynamicResource AppWarningBrush}" IsVisible="{Binding HasDanglingIndexes}">
+                        <StackPanel Spacing="6">
+                            <DockPanel>
+                                <Button DockPanel.Dock="Right" Content="Delete these indexes" VerticalAlignment="Center"
+                                        Command="{Binding DeleteAllDanglingIndexesCommand}" />
+                                <TextBlock Text="{Binding DanglingIndexesText}" TextWrapping="Wrap" VerticalAlignment="Center"
+                                           Margin="0,0,12,0" />
+                            </DockPanel>
+                            <ItemsControl ItemsSource="{Binding DanglingIndexes}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="models:DanglingIndex">
+                                        <DockPanel Margin="0,2">
+                                            <Button DockPanel.Dock="Right" Content="Delete" FontSize="12" Padding="8,1"
+                                                    Command="{Binding $parent[Window].((vm:PreferencesViewModel)DataContext).DeleteDanglingIndexCommand}"
+                                                    CommandParameter="{Binding}" />
+                                            <TextBlock DockPanel.Dock="Right" Text="{Binding SizeText}" FontSize="12"
+                                                       VerticalAlignment="Center" Margin="0,0,12,0" Opacity="0.8" />
+                                            <TextBlock Text="{Binding Name}" FontSize="12" VerticalAlignment="Center" />
+                                        </DockPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+                    <TextBlock DockPanel.Dock="Top" Classes="hint" Margin="0,0,0,4"
+                               Text="{Binding CatalogSource, StringFormat='Model list: {0}'}" />
+                    <TextBlock DockPanel.Dock="Top" Classes="hint" Margin="0,0,0,10"
+                               Text="Image-text models that run inside the app (ONNX Runtime, no Python needed). Each installed model appears as a search tool in the tab dropdown and keeps its own index, so the first search in a folder embeds its images; later searches only process new or changed files. Downloads continue if you close this window." />
+                    <ScrollViewer>
+                        <!-- Installed models first; a divider; then the ones that can be downloaded. -->
+                        <StackPanel>
+                            <ItemsControl ItemsSource="{Binding InstalledModels}" ItemTemplate="{StaticResource ModelCard}" />
+                            <Grid ColumnDefinitions="*,Auto,*" Margin="0,6,0,14" IsVisible="{Binding ShowModelDivider}">
+                                <Border Height="1" Background="{DynamicResource AppDividerBrush}" VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="1" Text="Not installed" Classes="hint" Margin="12,0" VerticalAlignment="Center" />
+                                <Border Grid.Column="2" Height="1" Background="{DynamicResource AppDividerBrush}" VerticalAlignment="Center" />
+                            </Grid>
+                            <ItemsControl ItemsSource="{Binding AvailableModels}" ItemTemplate="{StaticResource ModelCard}" />
+                        </StackPanel>
+                    </ScrollViewer>
+                </DockPanel>
+            </TabItem>
+
+            <!-- Custom tools: shown only while Features.CommandLineTools is on (off for now; the page and code are kept). -->
+            <TabItem Header="Command-line tools" IsVisible="{x:Static services:Features.CommandLineTools}">
+                <Grid ColumnDefinitions="220,*" ColumnSpacing="12" Margin="0,12,0,0">
+                    <DockPanel>
+                        <StackPanel DockPanel.Dock="Bottom" Spacing="6" Margin="0,8,0,0">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <Button Content="Add" Command="{Binding NewCustomToolCommand}" />
+                                <Button Content="Remove" Command="{Binding RemoveCustomToolCommand}" />
+                            </StackPanel>
+                        </StackPanel>
+                        <ListBox ItemsSource="{Binding CustomTools}" SelectedItem="{Binding SelectedCustomTool}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate x:DataType="vm:CustomToolViewModel">
+                                    <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </DockPanel>
+
+                    <Panel Grid.Column="1">
+                        <TextBlock Classes="hint" IsVisible="{Binding !HasSelectedCustomTool}" TextWrapping="Wrap"
+                                   Text="Any program that prints one result per line can be used as a search tool, without code changes. Click Add to set one up." />
+
+                        <ScrollViewer IsVisible="{Binding HasSelectedCustomTool}">
+                            <StackPanel Spacing="6" DataContext="{Binding SelectedCustomTool}"
+                                        x:DataType="vm:CustomToolViewModel" Margin="0,0,12,0">
+                                <TextBlock Classes="label" Text="Name" />
+                                <TextBox Text="{Binding Name}" />
+
+                                <TextBlock Classes="label" Text="Executable" Margin="0,6,0,0" />
+                                <DockPanel>
+                                    <Button DockPanel.Dock="Right" Content="Browse" Margin="8,0,0,0"
+                                            Click="BrowseToolExe_Click" />
+                                    <TextBox Text="{Binding Executable}" PlaceholderText="Path or command on PATH" />
+                                </DockPanel>
+
+                                <TextBlock Classes="label" Text="Other places to look for it (one per line, optional)" Margin="0,6,0,0" />
+                                <TextBox Text="{Binding FallbackPaths}" AcceptsReturn="True" TextWrapping="NoWrap" MinHeight="60"
+                                         FontFamily="Cascadia Mono,Consolas,Menlo,monospace" />
+                                <TextBlock Classes="hint"
+                                           Text="Used when the executable isn't found as given, e.g. an installer's default folder. %VARIABLES% and a leading ~ are expanded. Batch files (.bat, .cmd) aren't allowed: Windows runs them in a way that could let a folder name or query run commands." />
+
+                                <TextBlock Classes="label" Text="Arguments" Margin="0,6,0,0" />
+                                <TextBox Text="{Binding Arguments}" FontFamily="Cascadia Mono,Consolas,Menlo,monospace" />
+                                <TextBlock Classes="hint"
+                                           Text="Placeholders: {query}, {folder}, {top}. Each placeholder stays a single argument even if it contains spaces. The tool runs with the searched folder as its working directory." />
+
+                                <TextBlock Classes="label" Text="Output pattern (regex, applied to each line)" Margin="0,6,0,0" />
+                                <TextBox Text="{Binding OutputPattern}" FontFamily="Cascadia Mono,Consolas,Menlo,monospace" />
+                                <TextBlock Classes="hint"
+                                           Text="Needs a named group (?&lt;path&gt;...); (?&lt;score&gt;...) is optional. Lines that don't match are ignored, and so are paths that aren't existing image files. Relative paths are resolved against the searched folder. For tools that print only paths use ^(?&lt;path&gt;.+)$" />
+
+                                <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,6,0,0">
+                                    <TextBlock Classes="label" Text="Score when the line has none" />
+                                    <NumericUpDown Value="{Binding DefaultScore}" Minimum="0" Maximum="1"
+                                                   Increment="0.05" FormatString="0.00" Width="130" />
+                                </StackPanel>
+
+                                <TextBlock Classes="label" Text="Score calibration" Margin="0,10,0,0" />
+                                <CheckBox Content="Calibrate automatically (when a tab or the default tool uses it)" IsChecked="{Binding AutoCalibrate}" />
+                                <DockPanel>
+                                    <Button DockPanel.Dock="Right" Content="Calibrate" VerticalAlignment="Center" Margin="8,0,0,0"
+                                            IsEnabled="{Binding !Calibration.IsRunning}"
+                                            Command="{Binding $parent[Window].((vm:PreferencesViewModel)DataContext).CalibrateCustomToolCommand}"
+                                            CommandParameter="{Binding}" />
+                                    <TextBlock Text="{Binding Calibration.StatusText}" TextWrapping="Wrap" VerticalAlignment="Center" />
+                                </DockPanel>
+                                <TextBlock Classes="hint"
+                                           Text="Runs the saved tool on the built-in test images to map its scores to 0–100, like the built-in models. This runs the tool once per test image, so it can take a minute or two. It uses the tool as last saved, so save your edits first. Without calibration its raw scores are shown and new tabs start with Min score 0. Changing the executable, arguments, output pattern or default score means it has to be calibrated again." />
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Panel>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </DockPanel>
+</Window>

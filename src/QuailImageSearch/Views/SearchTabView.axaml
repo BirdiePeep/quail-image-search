@@ -1,0 +1,204 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:QuailImageSearch.ViewModels"
+             xmlns:services="using:QuailImageSearch.Services"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="600"
+             x:Class="QuailImageSearch.Views.SearchTabView"
+             x:DataType="vm:SearchTabViewModel">
+
+    <UserControl.Styles>
+        <Style Selector="Button.resetSize.atDefault">
+            <Setter Property="Opacity" Value="0" />
+            <Setter Property="IsHitTestVisible" Value="False" />
+            <Setter Property="Focusable" Value="False" />
+        </Style>
+        <Style Selector="Border.tile">
+            <Setter Property="Margin" Value="4" />
+            <Setter Property="Padding" Value="6" />
+            <Setter Property="CornerRadius" Value="6" />
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        <Style Selector="Border.tile:pointerover">
+            <Setter Property="Background" Value="{DynamicResource AppTileHoverBrush}" />
+        </Style>
+        <Style Selector="Border.tile.selected">
+            <Setter Property="Background" Value="{DynamicResource AppTileSelectedBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AppAccentBrush}" />
+        </Style>
+    </UserControl.Styles>
+
+    <DockPanel>
+        <!-- Search bar -->
+        <!-- Dropping an image file anywhere on the search bar searches for images like it. -->
+        <Grid x:Name="SearchBar" DockPanel.Dock="Top" Margin="8" ColumnDefinitions="Auto,*,Auto,Auto,Auto" RowDefinitions="Auto,Auto"
+              ColumnSpacing="8" RowSpacing="6" DragDrop.AllowDrop="True" Background="Transparent">
+            <ComboBox Grid.Column="0" ItemsSource="{Binding Tools}" MinWidth="150" MaxWidth="240"
+                      SelectedItem="{Binding SelectedTool}"
+                      ToolTip.Tip="Search tool for this tab (default is set in Preferences)">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate x:DataType="services:ISearchTool">
+                        <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+            <Panel Grid.Column="1">
+                <TextBox x:Name="QueryBox" Text="{Binding Query}" IsEnabled="{Binding HasTool}"
+                         IsVisible="{Binding !HasQueryImage}"
+                         PlaceholderText="Describe the image, e.g. &quot;sunset over mountains&quot;, or drop an image here"
+                         KeyDown="QueryBox_KeyDown">
+                    <TextBox.InnerRightContent>
+                        <Button Click="PickImage_Click" Padding="6,2" Margin="0,0,2,0" Background="Transparent"
+                                VerticalAlignment="Center" Focusable="False"
+                                ToolTip.Tip="Search by image: pick an image file to find images like it (or drop one on the search bar)">
+                            <!-- Picture icon -->
+                            <PathIcon Width="16" Height="16"
+                                      Data="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
+                        </Button>
+                    </TextBox.InnerRightContent>
+                </TextBox>
+                <!-- Searching by image: the image in place of the text box, with a button back to text. -->
+                <Border IsVisible="{Binding HasQueryImage}" CornerRadius="4" BorderThickness="1" Padding="4,2"
+                        BorderBrush="{DynamicResource AppAccentBrush}" Background="{DynamicResource AppTileSelectedBrush}"
+                        ToolTip.Tip="{Binding QueryImage}">
+                    <DockPanel>
+                        <Button DockPanel.Dock="Right" Command="{Binding ClearQueryImageCommand}" Padding="6,2"
+                                Background="Transparent" VerticalAlignment="Center"
+                                ToolTip.Tip="Search by text instead">
+                            <PathIcon Width="12" Height="12"
+                                      Data="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+                        </Button>
+                        <Image DockPanel.Dock="Left" Source="{Binding QueryImageThumbnail}" Width="24" Height="24"
+                               Stretch="Uniform" Margin="0,0,6,0" VerticalAlignment="Center" />
+                        <TextBlock VerticalAlignment="Center" TextTrimming="CharacterEllipsis">
+                            <Run Text="Images like " />
+                            <Run Text="{Binding QueryImageName}" FontWeight="SemiBold" />
+                        </TextBlock>
+                    </DockPanel>
+                </Border>
+            </Panel>
+            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6">
+                <TextBlock Text="Max results" VerticalAlignment="Center" Opacity="0.8" />
+                <NumericUpDown Value="{Binding MaxResults}" Minimum="1" Maximum="100000"
+                               Increment="50" FormatString="0" Width="130"
+                               ToolTip.Tip="How many results to ask the search tool for" />
+            </StackPanel>
+            <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="6">
+                <TextBlock Text="Min score" VerticalAlignment="Center" Opacity="0.8" />
+                <NumericUpDown Value="{Binding MinScore}" Minimum="0" Maximum="100"
+                               Increment="{Binding MinScoreStep}" FormatString="0.##" Width="120"
+                               ToolTip.Tip="Hide results scoring below this (0–100; raw scores for uncalibrated command-line tools). Filters instantly; doesn't re-run the search." />
+            </StackPanel>
+            <Button Grid.Column="4" Content="Search" Command="{Binding SearchCommand}" IsDefault="False"
+                    Classes="accent" />
+
+            <TextBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding Folder}" PlaceholderText="Folder to search" />
+            <Button Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="3" Content="Choose Folder"
+                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                    Click="BrowseFolder_Click" />
+        </Grid>
+
+        <Grid DockPanel.Dock="Bottom" Margin="8,2,8,6" ColumnDefinitions="Auto,Auto,*,Auto,Auto">
+            <ProgressBar Grid.Column="0" IsIndeterminate="True" IsVisible="{Binding IsBusy}"
+                         Width="80" Margin="0,0,8,0" MinWidth="0" VerticalAlignment="Center" />
+            <Button Grid.Column="1" Content="Cancel" IsVisible="{Binding IsBusy}" Command="{Binding CancelCommand}"
+                    Padding="8,1" FontSize="12" Margin="0,0,8,0" />
+            <TextBlock Grid.Column="2" Text="{Binding Status}" TextTrimming="CharacterEllipsis" Opacity="0.8"
+                       VerticalAlignment="Center" />
+            <TextBlock Grid.Column="3" Text="{Binding FilterSummary}" Opacity="0.8" Margin="12,0,0,0"
+                       VerticalAlignment="Center" />
+            <StackPanel Grid.Column="4" Orientation="Horizontal" Spacing="6" Margin="16,0,0,0"
+                        ToolTip.Tip="Thumbnail size (50–200%, in 10% steps)">
+                <TextBlock Text="Size" VerticalAlignment="Center" Opacity="0.8" />
+                <Slider Width="140" Minimum="50" Maximum="200" TickFrequency="10" IsSnapToTickEnabled="True"
+                        SmallChange="10" LargeChange="10" Value="{Binding ThumbnailScale}" VerticalAlignment="Center" />
+                <TextBlock Text="{Binding ThumbnailScaleText}" VerticalAlignment="Center" Opacity="0.8" MinWidth="36" />
+                <!-- Invisible (but still taking its space) at 100%, so the slider doesn't shift. -->
+                <Button Classes="resetSize" Classes.atDefault="{Binding IsThumbnailScaleDefault}"
+                        Command="{Binding ResetThumbnailScaleCommand}" ToolTip.Tip="Reset size to 100%"
+                        Padding="4" Background="Transparent" VerticalAlignment="Center">
+                    <!-- Counter-clockwise arrow ("reset") -->
+                    <PathIcon Width="14" Height="14"
+                              Data="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z" />
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <!-- Results: a virtualized list of rows (see ResultRowViewModel), with a centered logo
+             before the first search and a centered message when a search finds nothing. -->
+        <Grid>
+        <ScrollViewer x:Name="ResultsScroller" Focusable="True" IsVisible="{Binding HasTool}"
+                      HorizontalScrollBarVisibility="Disabled" Background="Transparent"
+                      SizeChanged="ResultsScroller_SizeChanged">
+            <ItemsControl x:Name="ResultsList" ItemsSource="{Binding Rows}" Margin="4,0">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <VirtualizingStackPanel />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:ResultRowViewModel">
+                        <ItemsControl ItemsSource="{Binding Items}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:ImageResultViewModel">
+                                    <Border Classes="tile" Classes.selected="{Binding IsSelected}"
+                                            Width="{Binding $parent[UserControl].((vm:SearchTabViewModel)DataContext).TileWidth}"
+                                            Height="{Binding $parent[UserControl].((vm:SearchTabViewModel)DataContext).TileHeight}"
+                                            ToolTip.Tip="{Binding ToolTip}"
+                                            DataContextChanged="Tile_DataContextChanged"
+                                            PointerPressed="Tile_PointerPressed"
+                                            PointerMoved="Tile_PointerMoved"
+                                            PointerReleased="Tile_PointerReleased"
+                                            DoubleTapped="Tile_DoubleTapped">
+                                        <Border.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Header="Open" InputGesture="Enter" Click="Open_Click" />
+                                                <MenuItem Header="Show in folder" Click="ShowInFolder_Click" />
+                                                <MenuItem Header="Copy" InputGesture="Ctrl+C" Click="Copy_Click" />
+                                                <MenuItem Header="Find similar" Click="FindSimilar_Click"
+                                                          ToolTip.Tip="Search this folder for images like this one, in a new tab" />
+                                                <Separator />
+                                                <MenuItem Header="Delete" InputGesture="Delete" Click="Delete_Click" />
+                                            </ContextMenu>
+                                        </Border.ContextMenu>
+                                        <Grid RowDefinitions="*,Auto,Auto">
+                                            <Image Source="{Binding Thumbnail}" Stretch="Uniform" />
+                                            <TextBlock Grid.Row="1" Text="{Binding FileName}" Margin="0,4,0,0"
+                                                       TextTrimming="CharacterEllipsis" FontSize="12" />
+                                            <TextBlock Grid.Row="2" Text="{Binding ScoreText}"
+                                                       FontSize="11" Opacity="0.6" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+        <!-- App logo (Assets/logo.png), shown faintly before the first search. -->
+        <Image Source="avares://QuailImageSearch/Assets/logo.png" Width="220" Height="220" Opacity="0.15"
+               HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False"
+               IsVisible="{Binding ShowLogo}" />
+        <TextBlock Text="{Binding EmptyMessage}" IsVisible="{Binding HasEmptyMessage}" IsHitTestVisible="False"
+                   HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"
+                   TextWrapping="Wrap" MaxWidth="520" FontSize="16" Opacity="0.7" Margin="24" />
+        <!-- No usable search tool (no model installed, or the tab's tool is gone): point to Preferences. -->
+        <StackPanel IsVisible="{Binding NeedsTool}" Spacing="14" Margin="24"
+                    HorizontalAlignment="Center" VerticalAlignment="Center">
+            <TextBlock Text="Download a model to start searching" FontSize="16" Opacity="0.8"
+                       HorizontalAlignment="Center" />
+            <Button Content="Open Preferences" Classes="accent" HorizontalAlignment="Center"
+                    Click="OpenModelPreferences_Click" />
+        </StackPanel>
+        </Grid>
+    </DockPanel>
+</UserControl>

@@ -1,0 +1,517 @@
+{
+  "description": "Calibration images for score rescaling. Every image is CC0 or public domain; see each entry's source page. Captions were reviewed against the images and corrected by hand.",
+  "images": [
+    {
+      "file": "00-a-photo-of-a-dog.jpg",
+      "caption": "a photo of a dog",
+      "source": "https://commons.wikimedia.org/wiki/File:Dog_in_Chacachacare.jpg",
+      "title": "File:Dog in Chacachacare.jpg",
+      "author": "Wilfredor",
+      "license": "CC0"
+    },
+    {
+      "file": "01-a-photo-of-a-cat.jpg",
+      "caption": "a photo of a cat",
+      "source": "https://commons.wikimedia.org/wiki/File:Young_tabby_cat_keeping_watch.jpg",
+      "title": "File:Young tabby cat keeping watch.jpg",
+      "author": "W.carter",
+      "license": "CC0"
+    },
+    {
+      "file": "02-a-photo-of-a-horse.jpg",
+      "caption": "a photo of a horse",
+      "source": "https://commons.wikimedia.org/wiki/File:Horse_in_T%C3%A1rcoles_River.jpg",
+      "title": "File:Horse in Tárcoles River.jpg",
+      "author": "Bernard Gagnon",
+      "license": "CC0"
+    },
+    {
+      "file": "03-a-cow-in-a-field.jpg",
+      "caption": "a cow in a field",
+      "source": "https://commons.wikimedia.org/wiki/File:Cow_on_pasture,_Ehrenbach.jpg",
+      "title": "File:Cow on pasture, Ehrenbach.jpg",
+      "author": "Gerda Arendt",
+      "license": "CC0"
+    },
+    {
+      "file": "04-a-colorful-parrot.jpg",
+      "caption": "a colorful parrot",
+      "source": "https://commons.wikimedia.org/wiki/File:Ara_ararauna_portrait_Rhodes.jpg",
+      "title": "File:Ara ararauna portrait Rhodes.jpg",
+      "author": "Jebulon",
+      "license": "CC0"
+    },
+    {
+      "file": "05-a-butterfly-on-a-flower.jpg",
+      "caption": "a butterfly on a flower",
+      "source": "https://commons.wikimedia.org/wiki/File:Eastern_tiger_swallowtail_butterfly_on_rhododendron_flowers,_May_2025.jpg",
+      "title": "File:Eastern tiger swallowtail butterfly on rhododendron flowers, May 2025.jpg",
+      "author": "Peter Cooper Jr.",
+      "license": "CC0"
+    },
+    {
+      "file": "06-fish-swimming-on-a-coral-reef.jpg",
+      "caption": "fish swimming on a coral reef",
+      "source": "https://commons.wikimedia.org/wiki/File:100%25_reef-fish_Endemism_at_90_m_off_Kure_Atoll.jpg",
+      "title": "File:100% reef-fish Endemism at 90 m off Kure Atoll.jpg",
+      "author": "Richard L. Pyle",
+      "license": "CC0"
+    },
+    {
+      "file": "07-an-elephant.jpg",
+      "caption": "an elephant",
+      "source": "https://commons.wikimedia.org/wiki/File:African_bush_elephant_(Loxodonta_africana),_Masai_Mara.jpg",
+      "title": "File:African bush elephant (Loxodonta africana), Masai Mara.jpg",
+      "author": "Hobbyfotowiki",
+      "license": "CC0"
+    },
+    {
+      "file": "08-a-flock-of-sheep.jpg",
+      "caption": "a flock of sheep",
+      "source": "https://commons.wikimedia.org/wiki/File:Sheep_lounging_in_the_shade_of_a_tree_at_R%C3%B6e_Castle.jpg",
+      "title": "File:Sheep lounging in the shade of a tree at Röe Castle.jpg",
+      "author": "W.carter",
+      "license": "CC0"
+    },
+    {
+      "file": "09-a-bicycle.jpg",
+      "caption": "a bicycle",
+      "source": "https://commons.wikimedia.org/wiki/File:Bike_on_a_snowy_street_in_Quebec_City_at_night.jpg",
+      "title": "File:Bike on a snowy street in Quebec City at night.jpg",
+      "author": "Wilfredor",
+      "license": "CC0"
+    },
+    {
+      "file": "10-a-car-parked-on-a-street.jpg",
+      "caption": "a car parked on a street",
+      "source": "https://commons.wikimedia.org/wiki/File:Avenue_Roosevelt_%C3%A0_Bruxelles,_Zen_Car_en_recharge.jpg",
+      "title": "File:Avenue Roosevelt à Bruxelles, Zen Car en recharge.jpg",
+      "author": "Benoît Prieur",
+      "license": "CC0"
+    },
+    {
+      "file": "11-a-bus-on-a-city-street.jpg",
+      "caption": "a bus on a city street",
+      "source": "https://commons.wikimedia.org/wiki/File:Hyundai_Elec_City_Town_JMS_2025.jpg",
+      "title": "File:Hyundai Elec City Town JMS 2025.jpg",
+      "author": "TTTNIS",
+      "license": "CC0"
+    },
+    {
+      "file": "12-a-train-on-railway-tracks.jpg",
+      "caption": "a train on railway tracks",
+      "source": "https://commons.wikimedia.org/wiki/File:JA1271_crossing_the_Otaki_River.jpg",
+      "title": "File:JA1271 crossing the Otaki River.jpg",
+      "author": "Karora",
+      "license": "Public domain"
+    },
+    {
+      "file": "13-an-airplane-flying-in-the-sky.jpg",
+      "caption": "an airplane flying in the sky",
+      "source": "https://commons.wikimedia.org/wiki/File:Douglas_DC-3_Airliner._(16055221680).jpg",
+      "title": "File:Douglas DC-3 Airliner. (16055221680).jpg",
+      "author": "Bernard Spragg. NZ from Christchurch, New Zealand",
+      "license": "CC0"
+    },
+    {
+      "file": "14-a-sailboat-on-the-water.jpg",
+      "caption": "a sailboat on the water",
+      "source": "https://commons.wikimedia.org/wiki/File:Sunset_Key_and_Sailboats,_Florida,_2025.jpg",
+      "title": "File:Sunset Key and Sailboats, Florida, 2025.jpg",
+      "author": "Julian Lupyan",
+      "license": "CC0"
+    },
+    {
+      "file": "15-a-motorcycle.jpg",
+      "caption": "a man riding a bicycle past tall buildings",
+      "source": "https://commons.wikimedia.org/wiki/File:Man_biking_on_Recife_city.jpg",
+      "title": "File:Man biking on Recife city.jpg",
+      "author": "Wilfredor",
+      "license": "CC0"
+    },
+    {
+      "file": "16-a-sandy-beach-by-the-ocean.jpg",
+      "caption": "a sandy beach by the ocean",
+      "source": "https://commons.wikimedia.org/wiki/File:Sandy_Hook_beach_NJ_sand_dune.jpg",
+      "title": "File:Sandy Hook beach NJ sand dune.jpg",
+      "author": "Tomwsulcer",
+      "license": "CC0"
+    },
+    {
+      "file": "17-a-snowy-mountain-peak.jpg",
+      "caption": "a snowy mountain peak",
+      "source": "https://commons.wikimedia.org/wiki/File:Tall_snow-capped_mountain_peak_(Unsplash).jpg",
+      "title": "File:Tall snow-capped mountain peak (Unsplash).jpg",
+      "author": "Les Anderson lesanderson",
+      "license": "CC0"
+    },
+    {
+      "file": "18-a-snowy-winter-landscape.jpg",
+      "caption": "a snowy winter landscape",
+      "source": "https://commons.wikimedia.org/wiki/File:Voldertal_from_Walder_Alm.jpg",
+      "title": "File:Voldertal from Walder Alm.jpg",
+      "author": "Hermann Hammer (User:Haneburger)",
+      "license": "CC0"
+    },
+    {
+      "file": "19-a-path-through-a-forest.jpg",
+      "caption": "a path through a forest",
+      "source": "https://commons.wikimedia.org/wiki/File:Lane,_Lippensgoed-Bulskampveld,_Beernem,_2026.jpg",
+      "title": "File:Lane, Lippensgoed-Bulskampveld, Beernem, 2026.jpg",
+      "author": "DimiTalen",
+      "license": "CC0"
+    },
+    {
+      "file": "20-sand-dunes-in-a-desert.jpg",
+      "caption": "sand dunes in a desert",
+      "source": "https://commons.wikimedia.org/wiki/File:Khongoryn_Els_05.jpg",
+      "title": "File:Khongoryn Els 05.jpg",
+      "author": "Bernard Gagnon",
+      "license": "CC0"
+    },
+    {
+      "file": "21-a-waterfall.jpg",
+      "caption": "a waterfall",
+      "source": "https://commons.wikimedia.org/wiki/File:Cascade_de_Glandieu,_octobre_2019_(1).jpg",
+      "title": "File:Cascade de Glandieu, octobre 2019 (1).jpg",
+      "author": "Benoît Prieur",
+      "license": "CC0"
+    },
+    {
+      "file": "22-a-city-skyline-at-night.jpg",
+      "caption": "a city skyline at night",
+      "source": "https://commons.wikimedia.org/wiki/File:Price_Building_illuminated_at_night_in_Quebec_City.jpg",
+      "title": "File:Price Building illuminated at night in Quebec City.jpg",
+      "author": "Wilfredor",
+      "license": "CC0"
+    },
+    {
+      "file": "23-a-street-with-old-houses.jpg",
+      "caption": "stone carvings with Chinese characters on a wall",
+      "source": "https://commons.wikimedia.org/wiki/File:Brick_carvings_on_the_exterior_walls_of_houses_along_Dakou_Street_in_Niangziguan_Castle.jpg",
+      "title": "File:Brick carvings on the exterior walls of houses along Dakou Street in Niangziguan Castle.jpg",
+      "author": "HerryCFPL",
+      "license": "CC0"
+    },
+    {
+      "file": "24-a-large-bridge-over-water.jpg",
+      "caption": "a small footbridge over a river",
+      "source": "https://commons.wikimedia.org/wiki/File:Passerelle_himalayenne_over_the_Eau_d%27Olle_entering_Lac_du_Verney,_Allemond,_2026.jpg",
+      "title": "File:Passerelle himalayenne over the Eau d'Olle entering Lac du Verney, Allemond, 2026.jpg",
+      "author": "DimiTalen",
+      "license": "CC0"
+    },
+    {
+      "file": "25-the-inside-of-a-church.jpg",
+      "caption": "the inside of a church",
+      "source": "https://commons.wikimedia.org/wiki/File:Marianische_M%C3%A4nnerkongregation_Munich.jpg",
+      "title": "File:Marianische Männerkongregation Munich.jpg",
+      "author": "Jebulon",
+      "license": "CC0"
+    },
+    {
+      "file": "26-a-castle.jpg",
+      "caption": "a castle",
+      "source": "https://commons.wikimedia.org/wiki/File:Castle_of_Otranto_03.jpg",
+      "title": "File:Castle of Otranto 03.jpg",
+      "author": "Bernard Gagnon",
+      "license": "CC0"
+    },
+    {
+      "file": "27-a-lighthouse-on-the-coast.jpg",
+      "caption": "a lighthouse on the coast",
+      "source": "https://commons.wikimedia.org/wiki/File:Lighthouse_Chania_evening_sun.jpg",
+      "title": "File:Lighthouse Chania evening sun.jpg",
+      "author": "Jebulon",
+      "license": "CC0"
+    },
+    {
+      "file": "28-a-field-of-tulips.jpg",
+      "caption": "a bouquet of tulips",
+      "source": "https://commons.wikimedia.org/wiki/File:Bunch_tulip_Paris_2011.jpg",
+      "title": "File:Bunch tulip Paris 2011.jpg",
+      "author": "Jebulon",
+      "license": "CC0"
+    },
+    {
+      "file": "29-a-sunflower.jpg",
+      "caption": "a sunflower",
+      "source": "https://commons.wikimedia.org/wiki/File:Helianthus_annuus_-_Jardin_universitaire_Roger-Van_den_Hende,_Quebec_22.jpg",
+      "title": "File:Helianthus annuus - Jardin universitaire Roger-Van den Hende, Quebec 22.jpg",
+      "author": "Wilfredor",
+      "license": "CC0"
+    },
+    {
+      "file": "30-a-tree-with-autumn-leaves.jpg",
+      "caption": "a tree with autumn leaves",
+      "source": "https://commons.wikimedia.org/wiki/File:Autumn_leaves_%D0%92%D1%81%D0%B5_%D0%BA%D1%80%D0%B0%D1%81%D0%BA%D0%B8_%D0%BE%D1%81%D0%B5%D0%BD%D0%B8_%D0%9B%D0%B8%D1%81%D1%82%D1%8C%D1%8F_%D0%BA%D0%BB%D0%B5%D0%BD%D0%B0_21.jpg",
+      "title": "File:Autumn leaves Все краски осени Листья клена 21.jpg",
+      "author": "Tsyganov Sergey",
+      "license": "CC0"
+    },
+    {
+      "file": "31-a-pizza.jpg",
+      "caption": "a fruit tart",
+      "source": "https://commons.wikimedia.org/wiki/File:Multi-fruits_summer_pie,_homemade_by_Mrs_Jebulon.png",
+      "title": "File:Multi-fruits summer pie, homemade by Mrs Jebulon.png",
+      "author": "Jebulon",
+      "license": "CC0"
+    },
+    {
+      "file": "32-a-bowl-of-soup.jpg",
+      "caption": "a bowl of nuts",
+      "source": "https://commons.wikimedia.org/wiki/File:Apricot_kernel_in_bowl.jpg",
+      "title": "File:Apricot kernel in bowl.jpg",
+      "author": "Shisma",
+      "license": "CC0"
+    },
+    {
+      "file": "33-red-apples.jpg",
+      "caption": "red apples",
+      "source": "https://commons.wikimedia.org/wiki/File:Apples_on_tree_2011_G1.jpg",
+      "title": "File:Apples on tree 2011 G1.jpg",
+      "author": "George Chernilevsky",
+      "license": "Public domain"
+    },
+    {
+      "file": "34-loaves-of-bread.jpg",
+      "caption": "loaves of bread",
+      "source": "https://commons.wikimedia.org/wiki/File:9472Cuisine_of_Bulacan_04.jpg",
+      "title": "File:9472Cuisine of Bulacan 04.jpg",
+      "author": "Judgefloro",
+      "license": "CC0"
+    },
+    {
+      "file": "35-a-cup-of-coffee.jpg",
+      "caption": "a cup of coffee",
+      "source": "https://commons.wikimedia.org/wiki/File:Espresso_Coffee_01.jpg",
+      "title": "File:Espresso Coffee 01.jpg",
+      "author": "Jubair1985",
+      "license": "CC0"
+    },
+    {
+      "file": "36-a-slice-of-cake.jpg",
+      "caption": "a slice of cake",
+      "source": "https://commons.wikimedia.org/wiki/File:Piece_of_chocolate_cake_on_a_white_plate_decorated_with_chocolate_sauce.jpg",
+      "title": "File:Piece of chocolate cake on a white plate decorated with chocolate sauce.jpg",
+      "author": "Daria YakovlevaMinor edits made by Subsidiary account",
+      "license": "CC0"
+    },
+    {
+      "file": "37-a-wooden-chair.jpg",
+      "caption": "a wooden chair",
+      "source": "https://commons.wikimedia.org/wiki/File:Easy_chair,_probably_Boston,_Massachusetts,_1750-1790,_mahogany,_maple,_pine,_replacement_wool_upholstery-_Dallas_Museum_of_Art_-_DSC04896.jpg",
+      "title": "File:Easy chair, probably Boston, Massachusetts, 1750-1790, mahogany, maple, pine, replacement wool upholstery- Dallas Museum of Art - DSC04896.jpg",
+      "author": "Daderot",
+      "license": "Public domain"
+    },
+    {
+      "file": "38-a-laptop-computer.jpg",
+      "caption": "a laptop computer",
+      "source": "https://commons.wikimedia.org/wiki/File:Powerbook_100_pose.jpg",
+      "title": "File:Powerbook 100 pose.jpg",
+      "author": "Danamania",
+      "license": "CC0"
+    },
+    {
+      "file": "39-a-computer-keyboard.jpg",
+      "caption": "a computer keyboard",
+      "source": "https://commons.wikimedia.org/wiki/File:IBM_AS400_Keyboard.jpg",
+      "title": "File:IBM AS400 Keyboard.jpg",
+      "author": "Wilfredor",
+      "license": "CC0"
+    },
+    {
+      "file": "40-an-open-book.jpg",
+      "caption": "a painting of a landscape",
+      "source": "https://commons.wikimedia.org/wiki/File:Landscape_of_Danube_near_Regensburg,_Albrecht_Altdorfer,_W.A.F._30,_Alte_Pinakothek_Munich.jpg",
+      "title": "File:Landscape of Danube near Regensburg, Albrecht Altdorfer, W.A.F. 30, Alte Pinakothek Munich.jpg",
+      "author": "Albrecht Altdorfer",
+      "license": "Public domain"
+    },
+    {
+      "file": "41-a-clock-tower.jpg",
+      "caption": "a clock tower",
+      "source": "https://commons.wikimedia.org/wiki/File:Amalienburg_clock_tower_sundial_Hofburg_Vienna.jpg",
+      "title": "File:Amalienburg clock tower sundial Hofburg Vienna.jpg",
+      "author": "Jebulon",
+      "license": "CC0"
+    },
+    {
+      "file": "42-an-acoustic-guitar.jpg",
+      "caption": "a man playing a guitar",
+      "source": "https://commons.wikimedia.org/wiki/File:Man_playing_an_acoustic_brazilian_guitar_(Viol%C3%A3o)_on_Marco_Zero_Square,_Refice,_Pernambuco,_Brazil.jpg",
+      "title": "File:Man playing an acoustic brazilian guitar (Violão) on Marco Zero Square, Refice, Pernambuco, Brazil.jpg",
+      "author": "Wilfredor",
+      "license": "CC0"
+    },
+    {
+      "file": "43-a-piano.jpg",
+      "caption": "a long hall with a painted ceiling",
+      "source": "https://commons.wikimedia.org/wiki/File:Antiquarium,_M%C3%BCnchner_Residenz.jpg",
+      "title": "File:Antiquarium, Münchner Residenz.jpg",
+      "author": "Wilfredor",
+      "license": "CC0"
+    },
+    {
+      "file": "44-a-soccer-ball.jpg",
+      "caption": "a soccer ball",
+      "source": "https://commons.wikimedia.org/wiki/File:Boy_Kicking_Soccer_Ball_at_Adirondack_Camp_in_NY.jpg",
+      "title": "File:Boy Kicking Soccer Ball at Adirondack Camp in NY.jpg",
+      "author": "ADKPhoto",
+      "license": "CC0"
+    },
+    {
+      "file": "45-people-running-a-race.jpg",
+      "caption": "people running a race",
+      "source": "https://commons.wikimedia.org/wiki/File:Runners_of_the_Tel_Aviv_Marathon_2026.jpg",
+      "title": "File:Runners of the Tel Aviv Marathon 2026.jpg",
+      "author": "MoserB",
+      "license": "CC0"
+    },
+    {
+      "file": "46-children-playing-outside.jpg",
+      "caption": "a playground with a large wooden fox",
+      "source": "https://commons.wikimedia.org/wiki/File:Fox_playground,_Champ_de_Mars,_Colmar,_2026.jpg",
+      "title": "File:Fox playground, Champ de Mars, Colmar, 2026.jpg",
+      "author": "DimiTalen",
+      "license": "CC0"
+    },
+    {
+      "file": "47-a-crowd-of-people.jpg",
+      "caption": "a crowd of people",
+      "source": "https://commons.wikimedia.org/wiki/File:Crowds_in_St._Peter%27s_Square.jpg",
+      "title": "File:Crowds in St. Peter's Square.jpg",
+      "author": "Mx. Granger",
+      "license": "CC0"
+    },
+    {
+      "file": "48-a-portrait-of-a-woman.jpg",
+      "caption": "a portrait of a woman",
+      "source": "https://commons.wikimedia.org/wiki/File:Woman_in_a_headwrap_in_Quebec_City.jpg",
+      "title": "File:Woman in a headwrap in Quebec City.jpg",
+      "author": "Wilfredor",
+      "license": "CC0"
+    },
+    {
+      "file": "49-a-portrait-of-an-old-man.jpg",
+      "caption": "a painted portrait of a man",
+      "source": "https://commons.wikimedia.org/wiki/File:Antonello_da_Messina_-_Portrait_of_a_Man_(Il_Condottiere)_cleaned_version.jpg",
+      "title": "File:Antonello da Messina - Portrait of a Man (Il Condottiere) cleaned version.jpg",
+      "author": "Wilfredor",
+      "license": "Public domain"
+    },
+    {
+      "file": "50-a-pair-of-hands.jpg",
+      "caption": "hands holding bunches of grapes",
+      "source": "https://commons.wikimedia.org/wiki/File:Javier_shows_part_of_the_grape_harvest_in_his_Lysekil_vineyard_1_-_cropped.jpg",
+      "title": "File:Javier shows part of the grape harvest in his Lysekil vineyard 1 - cropped.jpg",
+      "author": "W.carter",
+      "license": "CC0"
+    },
+    {
+      "file": "51-a-pair-of-shoes.jpg",
+      "caption": "a pair of shoes",
+      "source": "https://commons.wikimedia.org/wiki/File:A_pair_of_kids_sneakers.jpg",
+      "title": "File:A pair of kids sneakers.jpg",
+      "author": "Xzpq",
+      "license": "CC0"
+    },
+    {
+      "file": "52-fireworks-in-the-night-sky.jpg",
+      "caption": "fireworks in the night sky",
+      "source": "https://commons.wikimedia.org/wiki/File:Fireworks_in_Sevierville,_Tennessee_on_4th_of_July_-_15.jpg",
+      "title": "File:Fireworks in Sevierville, Tennessee on 4th of July - 15.jpg",
+      "author": "Roc0ast3r",
+      "license": "CC0"
+    },
+    {
+      "file": "53-a-sunset-over-the-sea.jpg",
+      "caption": "a sunset over the sea",
+      "source": "https://commons.wikimedia.org/wiki/File:Pegeia,_Cyprus,_sunset_at_sea_caves.jpg",
+      "title": "File:Pegeia, Cyprus, sunset at sea caves.jpg",
+      "author": "Gerda Arendt",
+      "license": "CC0"
+    },
+    {
+      "file": "54-the-moon.jpg",
+      "caption": "a long shadow of a person on a wooden deck",
+      "source": "https://commons.wikimedia.org/wiki/File:Moonlight_shadow.jpg",
+      "title": "File:Moonlight shadow.jpg",
+      "author": "W.carter",
+      "license": "CC0"
+    },
+    {
+      "file": "55-stars-in-the-night-sky.jpg",
+      "caption": "a galaxy in the night sky",
+      "source": "https://commons.wikimedia.org/wiki/File:Andromeda_Galaxy_2025.png",
+      "title": "File:Andromeda Galaxy 2025.png",
+      "author": "Brody Wesner",
+      "license": "CC0"
+    },
+    {
+      "file": "56-a-rainbow.jpg",
+      "caption": "sunlight falling through a window onto a wall",
+      "source": "https://commons.wikimedia.org/wiki/File:Rainbow_in_Se_Catedral.jpg",
+      "title": "File:Rainbow in Se Catedral.jpg",
+      "author": "Wilfredor",
+      "license": "CC0"
+    },
+    {
+      "file": "57-lightning-in-a-storm.jpg",
+      "caption": "a painting of a storm over a landscape",
+      "source": "https://commons.wikimedia.org/wiki/File:The_Thunderstorm_-_Gustave_Adolphe_Kirstein.jpg",
+      "title": "File:The Thunderstorm - Gustave Adolphe Kirstein.jpg",
+      "author": ".mw-parser-output .ubx-floatdefault[dir=\"ltr\"],.mw-parser-output .ubx-floatopposite[dir=\"rtl\"],.mw-parser-output .ubx-fl",
+      "license": "CC0"
+    },
+    {
+      "file": "58-a-snowman.jpg",
+      "caption": "a small sculpture of a swing",
+      "source": "https://commons.wikimedia.org/wiki/File:The_Swing_archmus_Heraklion.jpg",
+      "title": "File:The Swing archmus Heraklion.jpg",
+      "author": "Jebulon",
+      "license": "CC0"
+    },
+    {
+      "file": "59-vegetables-at-a-market.jpg",
+      "caption": "vegetables at a market",
+      "source": "https://commons.wikimedia.org/wiki/File:Child_working_selling_vegetables_in_downtown_Maracaibo.jpg",
+      "title": "File:Child working selling vegetables in downtown Maracaibo.jpg",
+      "author": "Wilfredor",
+      "license": "CC0"
+    },
+    {
+      "file": "60-a-stone-statue.jpg",
+      "caption": "a stone statue",
+      "source": "https://commons.wikimedia.org/wiki/File:Charlotte_catherine_de_la_Tr%C3%A9moille_de_Cond%C3%A9_Guillain_Louvre_LP_400.JPG",
+      "title": "File:Charlotte catherine de la Trémoille de Condé Guillain Louvre LP 400.JPG",
+      "author": "Simon Guillain",
+      "license": "Public domain"
+    },
+    {
+      "file": "61-graffiti-on-a-wall.jpg",
+      "caption": "writing painted on a wall",
+      "source": "https://commons.wikimedia.org/wiki/File:Rue_Saint-Maximin_-_inscription_Covid_%C3%A9gal_Arnaque_du_si%C3%A8cle.jpg",
+      "title": "File:Rue Saint-Maximin - inscription Covid égal Arnaque du siècle.jpg",
+      "author": "Benoît Prieur",
+      "license": "CC0"
+    },
+    {
+      "file": "62-a-kitchen.jpg",
+      "caption": "a kitchen",
+      "source": "https://commons.wikimedia.org/wiki/File:Kitchen_from_Northeast_Brazil.jpg",
+      "title": "File:Kitchen from Northeast Brazil.jpg",
+      "author": "Wilfredor",
+      "license": "CC0"
+    },
+    {
+      "file": "63-a-bedroom.jpg",
+      "caption": "a bedroom",
+      "source": "https://commons.wikimedia.org/wiki/File:Harewood_House_The_East_Bedroom.jpg",
+      "title": "File:Harewood House The East Bedroom.jpg",
+      "author": "Michael D Beckwith",
+      "license": "CC0"
+    }
+  ]
+}

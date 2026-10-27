@@ -1,0 +1,593 @@
+--- a/README.md
++++ b/README.md
+@@ -10,6 +10,7 @@
+ 
+ - Tabs: one search per tab (`Ctrl+T` new, `Ctrl+W` close, or use the `+` / `✕` buttons)
+ - **Models** (Preferences > Models): download any of 9 models from the built-in list: CLIP ViT-B/32 (full and 8-bit), CLIP ViT-B/16, MobileCLIP S0/S2/B, and SigLIP B/16 at 224 (full and 8-bit) and 384. The page shows each model's family, size, license (with a warning for MobileCLIP's research-only license) and source. Each installed model becomes a search tool, with its own default Min score.
++- **Tag probes** (Preferences > Training): train a tag classifier for a downloaded model on a tagged Parquet dataset. The model then gets a second search tool, "*model* · tags", that searches by tags. See "Tag probes" below.
+ - Each tab has a search-tool dropdown, a query box, a max-results setting, and a folder picker
+ - **Preferences** (`File > Preferences…` or `Ctrl+,`) cover the default tool for new tabs, default Max results and Min score, downloadable models, and command-line tools (including rclip). They're saved to `preferences.json` in the same folder as the session.
+ - **Scores on a 0–100 scale for every tool:** 0 means an unrelated image and 100 a strong match (see "Score calibration" below). Hover a tile to see its raw score.
+@@ -183,6 +184,7 @@
+ Every search goes through an adapter (`ISearchTool`). The adapter takes the query, the folder and the max results, and returns a list of file paths with scores. It also writes what it ran to the debug log. Adapters are listed in `ToolRegistry`.
+ 
+ - **Downloaded models** (built in): see "Built-in models" above. `EmbeddingModelTool` is the adapter.
++- **Tag probes** (built in): a "*model* · tags" tool for each model with a trained tag probe. `TagProbeTool` is the adapter; see "Tag probes" below.
+ - **Command-line tools** (Preferences > Command-line tools) let you plug in any program that prints results line by line, without writing code:
+   - **Executable:** a path, or a command on `PATH`, plus optional fallback locations to try if it isn't found, such as an installer's default folder (`%VARIABLES%` and `~` are expanded).
+   - **Arguments:** a template using `{query}`, `{folder}` and `{top}`. Each placeholder is passed as a single argument, so a query containing spaces or quotes is safe. The tool runs with the searched folder as its working directory.
+@@ -196,11 +198,29 @@
+ 
+ Each tab's tool is saved in `session.json`. Sessions saved before tools were selectable load with rclip.
+ 
++## Tag probes
++
++A tag probe is one small logistic-regression classifier per tag, trained on top of a downloaded model's image embeddings (a "linear probe"). The model itself isn't changed. Searching by tags with a probe is usually much more accurate than typing the tags as a text query, because each classifier has learned from thousands of tagged examples what its tag looks like.
++
++**Dataset:** a folder of Parquet files in the layout Hugging Face uses for image datasets: one row per image, the encoded image in a binary column (usually the `bytes` field of an `image` struct), and its tags in a text column (`tags`, `text`, `tag_string` or `caption`) as space-separated tags or as a list of strings. Subfolders are included. A typical file has the columns `id`, `image` (`bytes` + `path`) and `text`, with tags like `species:wolf black_fur rating:safe`. **Check** in Preferences counts the images and shows which columns will be used, reading only the Parquet file footers.
++
++**Training** (Preferences > Training, pick the dataset folder and a model, then Train):
++1. **Embedding:** every dataset image is embedded once with the model, on the GPU when available (the same GPU setting as searches). The embeddings are cached next to the dataset in `.imagesearch-features\<model id>` as half-precision floats (about 430 MB for 280,000 images with a 768-dimensional model), one file per Parquet file. Finished files are kept, so a cancelled or failed run continues where it stopped, and retraining with other settings skips this step. Unreadable images are skipped.
++2. **Training:** one classifier per tag with at least "Min images per tag" examples (default 100), trained with Adam on the CPU for "Epochs" passes (default 10). Embeddings are standardized per dimension first. 1 in 20 images is held out.
++3. **Evaluation:** each tag's average precision on the held-out images is measured. The Training page shows the mean, and the best and worst tags. The debug log lists the most common tags' scores.
++
++The probe is saved to `%APPDATA%\QuailImageSearch\probes\<model id>.probe` (tags, scores and weights; about 20 MB for 6,800 tags). Training keeps running if Preferences is closed; its progress shows in the main window's status bar. Measured with a synthetic dataset of 280,000 images ( 768 dimensions, 12,000 tags) on a 12-core Ryzen 9 3900X, training took about 40 s per epoch using 0.8 GB of memory. Embedding speed depends on the GPU and on JPEG decoding.
++
++**Searching:** choose "*model* · tags" in a tab's tool dropdown and type tags separated by spaces or commas, e.g. `species:wolf black_fur`. A leading `-` excludes a tag (`-rating:explicit`). A tag can be typed without its category prefix when that's unambiguous (`wolf` finds `species:wolf`). An unknown tag is reported with suggestions. The score is the lowest per-term probability, in percent (the tag's probability, or 1 minus it for an excluded tag), so every term has to match. These scores are already on the 0–100 scale and need no calibration. The folder is indexed with the model like a normal search, and the index is shared with the model's own tool.
++
+ ## Project layout
+ 
+ ```
+ src/QuailImageSearch/Services/Tools/         ISearchTool, ToolRegistry, CommandLineTool (generic adapter; rclip uses it),
+-                                        EmbeddingModelTool (indexing + search for downloaded models)
++                                        EmbeddingModelTool (indexing + search for downloaded models),
++                                        TagProbeTool (tag search with a trained probe)
++src/QuailImageSearch/Services/Probes/        TagDataset (Parquet reading), ProbeTrainer (embedding cache, training, evaluation),
++                                        LinearProbe (weights, file format), ProbeStore (saved probes)
+ src/QuailImageSearch/Services/Models/        models.json (model list), ModelCatalog, ModelManager (downloads),
+                                         ClipModel (ONNX + preprocessing), ClipTokenizer.cs (CLIP BPE + SigLIP Unigram),
+                                         PillowResize, EmbeddingIndex (SQLite)
+--- a/src/QuailImageSearch/App.axaml.cs
++++ b/src/QuailImageSearch/App.axaml.cs
+@@ -3,6 +3,7 @@
+ using Avalonia.Markup.Xaml;
+ using QuailImageSearch.Services;
+ using QuailImageSearch.Services.Models;
++using QuailImageSearch.Services.Probes;
+ using QuailImageSearch.ViewModels;
+ using QuailImageSearch.Views;
+ 
+@@ -23,8 +24,9 @@
+             var prefs = AppFiles.Preferences.Load() ?? new Preferences();
+             if (prefs.Migrate()) AppFiles.Preferences.Save(prefs);
+             var models = new ModelManager(log);
+-            var tools = new ToolRegistry(log, prefs, models, new ScoreCalibrator(log));
+-            var vm = new MainViewModel(tools, models, prefs, log, AppFiles.Session.Load());
++            var probes = new ProbeStore();
++            var tools = new ToolRegistry(log, prefs, models, new ScoreCalibrator(log), probes);
++            var vm = new MainViewModel(tools, models, prefs, log, AppFiles.Session.Load(), probes, new ProbeTrainer(probes, log));
+             desktop.MainWindow = new MainWindow { DataContext = vm };
+             desktop.ShutdownRequested += (_, _) => tools.Dispose();
+         }
+--- a/src/QuailImageSearch/QuailImageSearch.csproj
++++ b/src/QuailImageSearch/QuailImageSearch.csproj
+@@ -42,5 +42,6 @@
+          standard build (CPU, plus Core ML on macOS) elsewhere. Same version, so the same API. -->
+     <PackageReference Include="Microsoft.ML.OnnxRuntime.DirectML" Version="1.24.4" Condition="'$(UseDirectML)' == 'true'" />
+     <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.24.4" Condition="'$(UseDirectML)' != 'true'" />
++    <PackageReference Include="Parquet.Net" Version="6.1.0" />
+   </ItemGroup>
+ </Project>
+--- a/src/QuailImageSearch/Services/Models/ClipModel.cs
++++ b/src/QuailImageSearch/Services/Models/ClipModel.cs
+@@ -382,6 +382,14 @@
+         return codec is null ? null : Preprocess(codec);
+     }
+ 
++    /// <summary><see cref="Preprocess(string)"/> for an encoded image in memory (e.g. from a Parquet dataset).</summary>
++    public float[]? Preprocess(byte[] encoded)
++    {
++        using var data = SKData.CreateCopy(encoded);
++        using var codec = SKCodec.Create(data);
++        return codec is null ? null : Preprocess(codec);
++    }
++
+     private float[]? Preprocess(SKCodec codec)
+     {
+         var spec = _info.Image;
+--- a/src/QuailImageSearch/Services/Preferences.cs
++++ b/src/QuailImageSearch/Services/Preferences.cs
+@@ -50,6 +50,14 @@
+ 
+     /// <summary>Size and position of the image preview window, restored when it opens.</summary>
+     public WindowPlacement? PreviewWindow { get; set; }
++
++    /// <summary>Tag probe training (Preferences > Training): the dataset folder and settings last used.</summary>
++    public string ProbeDatasetFolder { get; set; } = "";
++    public int ProbeMinExamples { get; set; } = DefaultProbeMinExamples;
++    public int ProbeEpochs { get; set; } = DefaultProbeEpochs;
++
++    public const int DefaultProbeMinExamples = 100;
++    public const int DefaultProbeEpochs = 10;
+ 
+     /// <summary>User-defined command-line tools (rclip is one of them); no code needed to add one.</summary>
+     public List<CommandLineToolDefinition> CustomTools { get; set; } = new();
+--- a/src/QuailImageSearch/Services/ScoreCalibration.cs
++++ b/src/QuailImageSearch/Services/ScoreCalibration.cs
+@@ -96,7 +96,7 @@
+ 
+     /// <summary>The tool's current scale, or null if it isn't calibrated (for its current version).</summary>
+     public ScoreScale? ScaleFor(ISearchTool tool) =>
+-        _records.TryGetValue(tool.Id, out var r) && r.Version == tool.ScoreVersion ? new ScoreScale(r.Low, r.High) : null;
++        tool.FixedScale ?? (_records.TryGetValue(tool.Id, out var r) && r.Version == tool.ScoreVersion ? new ScoreScale(r.Low, r.High) : null);
+ 
+     public bool IsCalibrated(ISearchTool tool) => ScaleFor(tool) is not null;
+ 
+--- a/src/QuailImageSearch/Services/Tools/EmbeddingModelTool.cs
++++ b/src/QuailImageSearch/Services/Tools/EmbeddingModelTool.cs
+@@ -96,7 +96,7 @@
+     /// <summary>
+     /// Indexes the folder like a normal search, then ranks its images with the scorer that
+     /// <paramref name="makeScorer"/> returns (given the loaded model): its embedding size and a
+-    /// function from an image embedding to a score. Text queries use it with the text embedding.
++    /// function from an image embedding to a score. Used for text queries and by <see cref="TagProbeTool"/>.
+     /// </summary>
+     public async Task<IReadOnlyList<SearchResult>> SearchAsync(SearchRequest request, string label,
+         Func<ClipModel, (int Dim, EmbeddingScorer Score)> makeScorer, IProgress<string>? progress, CancellationToken ct)
+--- a/src/QuailImageSearch/Services/Tools/ISearchTool.cs
++++ b/src/QuailImageSearch/Services/Tools/ISearchTool.cs
+@@ -31,6 +31,12 @@
+     /// <summary>True if the app calibrates this tool's scores automatically (built-in tools).</summary>
+     bool AutoCalibrate => false;
+ 
++    /// <summary>
++    /// A fixed raw-to-0–100 scale for tools whose scores need no calibration (e.g. probabilities);
++    /// null means the scale comes from calibration.
++    /// </summary>
++    ScoreScale? FixedScale => null;
++
+     /// <summary>Where the tool computes, for status text (e.g. "GPU (NVIDIA …)"); null if not applicable.</summary>
+     string? DeviceSummary => null;
+ 
+--- a/src/QuailImageSearch/Services/Tools/ToolRegistry.cs
++++ b/src/QuailImageSearch/Services/Tools/ToolRegistry.cs
+@@ -3,26 +3,30 @@
+ using System.Collections.ObjectModel;
+ using System.Linq;
+ using QuailImageSearch.Services.Models;
++using QuailImageSearch.Services.Probes;
+ 
+ namespace QuailImageSearch.Services;
+ 
+ /// <summary>
+ /// The search tools available to tabs: one tool per downloaded model, and the command-line tools
+-/// defined in preferences (rclip is one of those). To add a built-in adapter, implement
++/// defined in preferences (rclip is one of those), plus a "tags" tool for each model with a trained
++/// tag probe (<see cref="TagProbeTool"/>). To add a built-in adapter, implement
+ /// <see cref="ISearchTool"/> and register it here.
+ /// </summary>
+ public sealed class ToolRegistry : IDisposable
+ {
+     private readonly DebugLog _log;
+     private readonly ModelManager _models;
++    private readonly ProbeStore _probes;
+     private decimal _defaultMinScore;
+     private string _gpuMode;
+     private int _gpuBatch;
+ 
+-    public ToolRegistry(DebugLog log, Preferences prefs, ModelManager models, ScoreCalibrator calibrator)
++    public ToolRegistry(DebugLog log, Preferences prefs, ModelManager models, ScoreCalibrator calibrator, ProbeStore probes)
+     {
+         _log = log;
+         _models = models;
++        _probes = probes;
+         Calibrator = calibrator;
+         _gpuMode = prefs.UseGpu;
+         _gpuBatch = prefs.GpuBatchSize;
+@@ -30,10 +34,19 @@
+         SyncCustomTools(prefs);
+         DefaultToolId = prefs.DefaultToolId;
+         _defaultMinScore = prefs.DefaultMinScore;
+-        _models.Uninstalling += info => RemoveTool(EmbeddingModelTool.IdPrefix + info.Id);
++        _models.Uninstalling += info =>
++        {
++            RemoveTool(TagProbeTool.IdPrefix + info.Id);
++            RemoveTool(EmbeddingModelTool.IdPrefix + info.Id);
++        };
+         _models.ReleaseIndex = modelId =>
+             Find(EmbeddingModelTool.IdPrefix + modelId) is not EmbeddingModelTool tool || tool.TryCloseIndex();
+         _models.InstalledChanged += () =>
++        {
++            SyncModelTools();
++            ToolsChanged?.Invoke();
++        };
++        _probes.Changed += _ =>
+         {
+             SyncModelTools();
+             ToolsChanged?.Invoke();
+@@ -80,13 +93,19 @@
+     private void SyncModelTools()
+     {
+         var installed = _models.Installed.Select(e => e.Info).ToList();
++        foreach (var stale in Tools.OfType<TagProbeTool>().Where(t => installed.All(m => m.Id != t.Info.Id) || _probes.HeaderFor(t.Info.Id) is null).ToList())
++            RemoveTool(stale.Id);
+         foreach (var stale in Tools.OfType<EmbeddingModelTool>().Where(t => installed.All(m => m.Id != t.Info.Id)).ToList())
+             RemoveTool(stale.Id);
+-        var insertAt = 0; // models first, then command-line tools
++        var insertAt = 0; // models first (each followed by its tags tool), then command-line tools
+         foreach (var info in installed)
+         {
+-            if (Find(EmbeddingModelTool.IdPrefix + info.Id) is null)
+-                Tools.Insert(insertAt, new EmbeddingModelTool(info, _log, _gpuMode, _gpuBatch));
++            if (Find(EmbeddingModelTool.IdPrefix + info.Id) is not EmbeddingModelTool model)
++                Tools.Insert(insertAt, model = new EmbeddingModelTool(info, _log, _gpuMode, _gpuBatch));
++            insertAt++;
++            if (_probes.HeaderFor(info.Id) is null) continue;
++            if (Find(TagProbeTool.IdPrefix + info.Id) is null)
++                Tools.Insert(insertAt, new TagProbeTool(model, _probes, _log));
+             insertAt++;
+         }
+     }
+--- a/src/QuailImageSearch/ViewModels/MainViewModel.cs
++++ b/src/QuailImageSearch/ViewModels/MainViewModel.cs
+@@ -7,6 +7,7 @@
+ using CommunityToolkit.Mvvm.Input;
+ using QuailImageSearch.Services;
+ using QuailImageSearch.Services.Models;
++using QuailImageSearch.Services.Probes;
+ 
+ namespace QuailImageSearch.ViewModels;
+ 
+@@ -14,10 +15,15 @@
+ {
+     private readonly ToolRegistry _tools;
+ 
+-    public MainViewModel(ToolRegistry tools, ModelManager models, Preferences prefs, DebugLog log, SessionState? session = null)
++    public MainViewModel(ToolRegistry tools, ModelManager models, Preferences prefs, DebugLog log, SessionState? session,
++                         ProbeStore probes, ProbeTrainer trainer)
+     {
+         _tools = tools;
+         Models = models;
++        Probes = probes;
++        Trainer = trainer;
++        // Tag probe training runs in the background (also after Preferences is closed): show its progress.
++        trainer.PropertyChanged += (_, _) => BackgroundStatus = trainer.IsRunning ? "Tag probe: " + trainer.StatusText : "";
+         Preferences = prefs;
+         Log = log;
+         // A model was installed or removed: re-select each tab's tool (removed ones fall back to the default).
+@@ -78,13 +84,15 @@
+     // Designer-only constructor.
+     public MainViewModel() : this(Design()) { }
+ 
+-    private MainViewModel((ToolRegistry Tools, ModelManager Models) d) : this(d.Tools, d.Models, new Preferences(), new DebugLog()) { }
+-
+-    private static (ToolRegistry, ModelManager) Design()
++    private MainViewModel((ToolRegistry Tools, ModelManager Models, ProbeStore Probes, DebugLog Log) d)
++        : this(d.Tools, d.Models, new Preferences(), d.Log, null, d.Probes, new ProbeTrainer(d.Probes, d.Log)) { }
++
++    private static (ToolRegistry, ModelManager, ProbeStore, DebugLog) Design()
+     {
+         var log = new DebugLog();
+         var models = new ModelManager(log);
+-        return (new ToolRegistry(log, new Preferences(), models, new ScoreCalibrator(log)), models);
++        var probes = new ProbeStore();
++        return (new ToolRegistry(log, new Preferences(), models, new ScoreCalibrator(log), probes), models, probes, log);
+     }
+ 
+     public ObservableCollection<SearchTabViewModel> Tabs { get; } = new();
+@@ -92,6 +100,10 @@
+     public ToolRegistry ToolRegistry => _tools;
+ 
+     public ModelManager Models { get; }
++
++    public ProbeStore Probes { get; }
++
++    public ProbeTrainer Trainer { get; }
+ 
+     public Preferences Preferences { get; private set; }
+ 
+--- a/src/QuailImageSearch/ViewModels/PreferencesViewModel.cs
++++ b/src/QuailImageSearch/ViewModels/PreferencesViewModel.cs
+@@ -9,12 +9,16 @@
+ using CommunityToolkit.Mvvm.Input;
+ using QuailImageSearch.Services;
+ using QuailImageSearch.Services.Models;
++using QuailImageSearch.Services.Probes;
+ 
+ namespace QuailImageSearch.ViewModels;
+ 
+ public sealed record ToolOption(string Id, string Name);
+ 
+ public sealed record GpuModeOption(string Mode, string Label);
++
++/// <summary>A trained tag probe, listed on the Training page.</summary>
++public sealed record ProbeRow(string ModelId, string Name, string Summary, string Details);
+ 
+ /// <summary>Editable copy of <see cref="Services.Preferences"/> for the preferences window.</summary>
+ public partial class PreferencesViewModel : ViewModelBase
+@@ -23,12 +27,19 @@
+ 
+     private readonly ToolRegistry _tools;
+     private readonly Preferences _prefs;
+-
+-    public PreferencesViewModel(Preferences prefs, ModelManager models, ToolRegistry tools)
++    private readonly ProbeStore _probes;
++
++    public PreferencesViewModel(Preferences prefs, ModelManager models, ToolRegistry tools, ProbeStore probes, ProbeTrainer trainer)
+     {
+         _models = models;
+         _tools = tools;
+         _prefs = prefs;
++        _probes = probes;
++        Trainer = trainer;
++        _probes.Changed += OnProbesChanged;
++        ProbeDatasetFolder = prefs.ProbeDatasetFolder;
++        ProbeMinExamples = prefs.ProbeMinExamples;
++        ProbeEpochs = prefs.ProbeEpochs;
+         foreach (var e in models.Entries)
+             e.Calibration = tools.Calibrator.StateFor(EmbeddingModelTool.IdPrefix + e.Info.Id);
+         _models.InstalledChanged += RebuildToolOptions;
+@@ -45,7 +56,11 @@
+     }
+ 
+     /// <summary>Call when the window closes.</summary>
+-    public void Detach() => _models.InstalledChanged -= RebuildToolOptions;
++    public void Detach()
++    {
++        _models.InstalledChanged -= RebuildToolOptions;
++        _probes.Changed -= OnProbesChanged;
++    }
+ 
+     // ---- Models ----
+ 
+@@ -313,10 +328,123 @@
+         var selected = DefaultToolId;
+         ToolOptions.Clear();
+         foreach (var m in _models.Installed)
++        {
+             ToolOptions.Add(new ToolOption(EmbeddingModelTool.IdPrefix + m.Info.Id, m.Info.Name));
++            if (_tools.Find(TagProbeTool.IdPrefix + m.Info.Id) is { } probeTool)
++                ToolOptions.Add(new ToolOption(probeTool.Id, probeTool.Name));
++        }
+         foreach (var t in CustomTools)
+             ToolOptions.Add(new ToolOption(t.Id, string.IsNullOrWhiteSpace(t.Name) ? "(unnamed)" : t.Name));
+         DefaultToolId = ToolOptions.Any(o => o.Id == selected) ? selected : ToolOptions.FirstOrDefault()?.Id;
++        RebuildProbeModels();
++    }
++
++    // ---- Training (tag probes) ----
++
++    public ProbeTrainer Trainer { get; }
++
++    [ObservableProperty]
++    public partial string ProbeDatasetFolder { get; set; } = "";
++
++    [ObservableProperty]
++    public partial decimal? ProbeMinExamples { get; set; }
++
++    [ObservableProperty]
++    public partial decimal? ProbeEpochs { get; set; }
++
++    /// <summary>Installed models that can be trained.</summary>
++    public ObservableCollection<ToolOption> ProbeModels { get; } = new();
++
++    [ObservableProperty]
++    public partial string? ProbeModelId { get; set; }
++
++    [ObservableProperty]
++    public partial string DatasetSummary { get; set; } = "";
++
++    public ObservableCollection<ProbeRow> Probes { get; } = new();
++
++    public bool HasProbes => Probes.Count > 0;
++
++    partial void OnProbeDatasetFolderChanged(string value) => DatasetSummary = "";
++
++    private void RebuildProbeModels()
++    {
++        var selected = ProbeModelId;
++        ProbeModels.Clear();
++        foreach (var m in _models.Installed)
++            ProbeModels.Add(new ToolOption(m.Info.Id, m.Info.Name));
++        // Default: the model the default tool uses, else the first full-precision one.
++        var fallback = _models.Installed.Select(m => m.Info)
++            .OrderByDescending(m => EmbeddingModelTool.IdPrefix + m.Id == DefaultToolId)
++            .ThenBy(m => DevicePlan.IsQuantized(m))
++            .FirstOrDefault()?.Id;
++        ProbeModelId = ProbeModels.Any(o => o.Id == selected) ? selected : fallback;
++        RebuildProbes();
++    }
++
++    private void OnProbesChanged(string modelId) => RebuildToolOptions(); // a probe adds or removes a "· tags" tool
++
++    private void RebuildProbes()
++    {
++        Probes.Clear();
++        foreach (var m in _models.Entries)
++        {
++            if (_probes.HeaderFor(m.Info.Id) is not { } h) continue;
++            var scored = h.Tags.Where(t => t.ValidationPositives > 0).ToList();
++            var best = scored.OrderByDescending(t => t.AveragePrecision).Take(5).Select(t => $"{t.Tag} {t.AveragePrecision:0.00}");
++            var worst = scored.OrderBy(t => t.AveragePrecision).Take(5).Select(t => $"{t.Tag} {t.AveragePrecision:0.00}");
++            Probes.Add(new ProbeRow(m.Info.Id, m.Info.Name + (m.IsInstalled ? "" : " (model not installed)"),
++                $"{h.Tags.Count:N0} tags · mean average precision {h.MeanAveragePrecision:0.000} · {h.TrainImages + h.ValidationImages:N0} images · " +
++                $"{h.Epochs} epochs · trained {h.TrainedAt:yyyy-MM-dd HH:mm}",
++                $"Dataset: {h.Dataset}\nBest: {string.Join(", ", best)}\nWorst: {string.Join(", ", worst)}"));
++        }
++        OnPropertyChanged(nameof(HasProbes));
++    }
++
++    [RelayCommand]
++    private async Task InspectDataset()
++    {
++        DatasetSummary = "Checking…";
++        try
++        {
++            var folder = ProbeDatasetFolder.Trim();
++            var summary = await Task.Run(() => TagDataset.InspectAsync(folder, CancellationToken.None));
++            DatasetSummary = $"{summary.Files.Count:N0} Parquet file(s), {summary.Rows:N0} images. Columns used: {summary.ColumnsText}.";
++        }
++        catch (Exception e)
++        {
++            DatasetSummary = "Can't use this folder: " + e.Message;
++        }
++    }
++
++    [RelayCommand]
++    private async Task TrainProbe()
++    {
++        if (Trainer.IsRunning) return;
++        var folder = ProbeDatasetFolder.Trim();
++        if (!Directory.Exists(folder)) { DatasetSummary = "Choose the dataset folder first."; return; }
++        if (_models.Installed.FirstOrDefault(m => m.Info.Id == ProbeModelId) is not { } model) { DatasetSummary = "Choose a model."; return; }
++
++        // Remember these settings right away, even if this window is then cancelled.
++        _prefs.ProbeDatasetFolder = folder;
++        _prefs.ProbeMinExamples = (int)Math.Clamp(ProbeMinExamples ?? Preferences.DefaultProbeMinExamples, 1, 1_000_000);
++        _prefs.ProbeEpochs = (int)Math.Clamp(ProbeEpochs ?? Preferences.DefaultProbeEpochs, 1, 100);
++        try { AppFiles.Preferences.Save(_prefs); } catch (Exception) { /* not critical */ }
++
++        await Trainer.RunAsync(new ProbeTrainingOptions(model.Info, folder, _prefs.ProbeMinExamples, _prefs.ProbeEpochs, GpuMode, GpuBatchSize));
++    }
++
++    [RelayCommand]
++    private void CancelProbe() => Trainer.Cancel();
++
++    [RelayCommand]
++    private async Task DeleteProbe(ProbeRow row)
++    {
++        if (ConfirmWithOption is not null && !(await ConfirmWithOption("Delete tag probe",
++                $"Delete the tag probe for {row.Name}?\n\nThe embedded dataset images stay cached next to the dataset, so training again is faster.",
++                "Delete", null, false)).Confirmed)
++            return;
++        if (_probes.Delete(row.ModelId) is { } error) DatasetSummary = $"Couldn't delete the probe: {error}";
+     }
+ 
+     /// <summary>Validated preferences, or null (with <see cref="Error"/> set) if something's wrong.</summary>
+@@ -343,6 +471,9 @@
+             UseGpu = GpuMode,
+             PreviewWindow = _prefs.PreviewWindow, // not edited here; kept as is
+             GpuBatchSize = GpuBatchSize,
++            ProbeDatasetFolder = ProbeDatasetFolder.Trim(),
++            ProbeMinExamples = (int)Math.Clamp(ProbeMinExamples ?? Preferences.DefaultProbeMinExamples, 1, 1_000_000),
++            ProbeEpochs = (int)Math.Clamp(ProbeEpochs ?? Preferences.DefaultProbeEpochs, 1, 100),
+             CustomTools = CustomTools.Select(t => t.ToDefinition()).ToList(),
+         };
+     }
+--- a/src/QuailImageSearch/Views/MainWindow.axaml.cs
++++ b/src/QuailImageSearch/Views/MainWindow.axaml.cs
+@@ -195,7 +195,7 @@
+         if (_vm is null) return;
+         var dialog = new PreferencesWindow
+         {
+-            DataContext = new PreferencesViewModel(_vm.Preferences, _vm.Models, _vm.ToolRegistry),
++            DataContext = new PreferencesViewModel(_vm.Preferences, _vm.Models, _vm.ToolRegistry, _vm.Probes, _vm.Trainer),
+         };
+         dialog.Closed += (_, _) => (dialog.DataContext as PreferencesViewModel)?.Detach();
+         if (await dialog.ShowDialog<Preferences?>(this) is { } prefs)
+--- a/src/QuailImageSearch/Views/PreferencesWindow.axaml
++++ b/src/QuailImageSearch/Views/PreferencesWindow.axaml
+@@ -187,6 +187,79 @@
+                 </DockPanel>
+             </TabItem>
+ 
++            <!-- Training (tag probes) -->
++            <TabItem Header="Training">
++                <ScrollViewer Margin="0,12,0,0">
++                    <StackPanel Spacing="10" Margin="0,0,12,0">
++                        <TextBlock Classes="hint"
++                                   Text="Train a tag classifier (a linear probe) for a downloaded model on a tagged image dataset in Parquet format (one row per image, with the image and its tags). The model embeds every dataset image once (on the GPU when available; the embeddings are cached next to the dataset in .imagesearch-features, so a cancelled run continues where it stopped), then one small classifier per tag is trained on the CPU. A trained probe adds a '· tags' search tool for that model: type tags like 'species:wolf black_fur', or '-tag' to exclude one. Scores are the probability (0–100) that the image has every tag." />
++                        <Grid ColumnDefinitions="170,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="10">
++                            <TextBlock Classes="label" Text="Dataset folder" />
++                            <DockPanel Grid.Column="1">
++                                <Button DockPanel.Dock="Right" Content="Check" Margin="8,0,0,0"
++                                        Command="{Binding InspectDatasetCommand}"
++                                        ToolTip.Tip="Counts the images and checks the columns (reads only the Parquet file footers)" />
++                                <Button DockPanel.Dock="Right" Content="Browse" Margin="8,0,0,0" Click="BrowseDataset_Click" />
++                                <TextBox Text="{Binding ProbeDatasetFolder}" PlaceholderText="Folder with the dataset's .parquet files (subfolders are included)" />
++                            </DockPanel>
++                            <TextBlock Grid.Row="1" Grid.Column="1" Classes="hint" Text="{Binding DatasetSummary}"
++                                       IsVisible="{Binding DatasetSummary, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
++                            <TextBlock Grid.Row="2" Classes="label" Text="Model" />
++                            <ComboBox Grid.Row="2" Grid.Column="1" ItemsSource="{Binding ProbeModels}" MinWidth="260"
++                                      SelectedValueBinding="{Binding Id, x:DataType=vm:ToolOption}"
++                                      SelectedValue="{Binding ProbeModelId}"
++                                      DisplayMemberBinding="{Binding Name, x:DataType=vm:ToolOption}" />
++                            <TextBlock Grid.Row="3" Classes="label" Text="Min images per tag" />
++                            <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Spacing="10">
++                                <NumericUpDown Value="{Binding ProbeMinExamples}" Minimum="1" Maximum="1000000" Increment="50"
++                                               FormatString="0" Width="160" />
++                                <TextBlock Classes="hint" VerticalAlignment="Center"
++                                           Text="Rarer tags are left out (too few examples to learn from)." />
++                            </StackPanel>
++                            <TextBlock Grid.Row="4" Classes="label" Text="Epochs" />
++                            <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal" Spacing="10">
++                                <NumericUpDown Value="{Binding ProbeEpochs}" Minimum="1" Maximum="100" Increment="1"
++                                               FormatString="0" Width="160" />
++                                <TextBlock Classes="hint" VerticalAlignment="Center" Text="Passes over the training images." />
++                            </StackPanel>
++                        </Grid>
++                        <StackPanel Orientation="Horizontal" Spacing="8">
++                            <Button Content="Train" Classes="accent" MinWidth="90" HorizontalContentAlignment="Center"
++                                    Command="{Binding TrainProbeCommand}" IsEnabled="{Binding !Trainer.IsRunning}" />
++                            <Button Content="Cancel" MinWidth="90" HorizontalContentAlignment="Center"
++                                    Command="{Binding CancelProbeCommand}" IsVisible="{Binding Trainer.IsRunning}" />
++                        </StackPanel>
++                        <ProgressBar Value="{Binding Trainer.Progress}" Maximum="100" IsVisible="{Binding Trainer.IsRunning}" />
++                        <TextBlock Text="{Binding Trainer.StatusText}" TextWrapping="Wrap" FontSize="12"
++                                   IsVisible="{Binding Trainer.StatusText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
++                        <TextBlock Classes="hint"
++                                   Text="Training keeps running if you close this window; its progress is shown in the main window's status bar and the debug log." />
++
++                        <TextBlock Text="Trained probes" FontWeight="SemiBold" Margin="0,8,0,0" />
++                        <TextBlock Classes="hint" Text="None yet." IsVisible="{Binding !HasProbes}" />
++                        <ItemsControl ItemsSource="{Binding Probes}">
++                            <ItemsControl.ItemTemplate>
++                                <DataTemplate x:DataType="vm:ProbeRow">
++                                    <Border Padding="12" Margin="0,0,0,8" CornerRadius="6"
++                                            Background="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}">
++                                        <DockPanel>
++                                            <Button DockPanel.Dock="Right" Content="Delete" VerticalAlignment="Center"
++                                                    Command="{Binding $parent[Window].((vm:PreferencesViewModel)DataContext).DeleteProbeCommand}"
++                                                    CommandParameter="{Binding}" />
++                                            <StackPanel Spacing="2" Margin="0,0,12,0">
++                                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
++                                                <TextBlock Text="{Binding Summary}" FontSize="12" TextWrapping="Wrap" />
++                                                <TextBlock Text="{Binding Details}" Classes="hint" />
++                                            </StackPanel>
++                                        </DockPanel>
++                                    </Border>
++                                </DataTemplate>
++                            </ItemsControl.ItemTemplate>
++                        </ItemsControl>
++                    </StackPanel>
++                </ScrollViewer>
++            </TabItem>
++
+             <!-- Custom tools -->
+             <TabItem Header="Command-line tools">
+                 <Grid ColumnDefinitions="220,*" ColumnSpacing="12" Margin="0,12,0,0">
+--- a/src/QuailImageSearch/Views/PreferencesWindow.axaml.cs
++++ b/src/QuailImageSearch/Views/PreferencesWindow.axaml.cs
+@@ -51,6 +51,21 @@
+             tool.Executable = path;
+     }
+ 
++    private async void BrowseDataset_Click(object? sender, RoutedEventArgs e)
++    {
++        if (Vm is not { } vm) return;
++        var folders = await StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
++        {
++            Title = "Choose the dataset folder (with .parquet files)",
++            AllowMultiple = false,
++        });
++        if (folders.FirstOrDefault()?.TryGetLocalPath() is { } path)
++        {
++            vm.ProbeDatasetFolder = path;
++            vm.InspectDatasetCommand.Execute(null);
++        }
++    }
++
+     private async Task<string?> PickExecutableAsync(string title)
+     {
+         var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions

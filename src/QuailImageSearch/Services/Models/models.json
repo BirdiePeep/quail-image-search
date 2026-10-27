@@ -1,0 +1,431 @@
+{
+  "schemaVersion": 1,
+  "models": [
+    {
+      "id": "clip-vit-b32",
+      "name": "CLIP ViT-B/32",
+      "family": "clip",
+      "description": "OpenAI's original CLIP. A solid all-rounder.",
+      "license": "MIT",
+      "licenseUrl": "https://github.com/openai/CLIP/blob/main/LICENSE",
+      "repo": "Xenova/clip-vit-base-patch32",
+      "revision": "d15189d7028b43f1d3e65039190477f6af591c2a",
+      "files": {
+        "vision": {
+          "path": "onnx/vision_model.onnx",
+          "size": 351685709,
+          "sha256": "fd6e1402a588279d1723c7534d4bcba5bc0b14b47dfab0e46f8c47b8270d7d40"
+        },
+        "text": {
+          "path": "onnx/text_model.onnx",
+          "size": 254058553,
+          "sha256": "3f6571f5bad13a97c469c1622e1cfc4d9aef78b79fdbfcff804ca357bfada8cc"
+        },
+        "tokenizer": {
+          "path": "tokenizer.json",
+          "size": 2224119,
+          "sha256": "f7f3b7af117d467b58374797691a6438d3e6b9e9cef800dfd5dced7f697a90cd"
+        }
+      },
+      "image": {
+        "size": 224,
+        "resize": "shortest_edge",
+        "resample": "bicubic",
+        "mean": [
+          0.48145466,
+          0.4578275,
+          0.40821073
+        ],
+        "std": [
+          0.26862954,
+          0.26130258,
+          0.27577711
+        ]
+      },
+      "text": {
+        "maxLength": 77,
+        "padTo": null,
+        "padId": 0
+      }
+    },
+    {
+      "id": "clip-vit-b32-q8",
+      "name": "CLIP ViT-B/32 (8-bit)",
+      "family": "clip",
+      "description": "The same model quantized to 8 bits: about 4x smaller and faster on CPU, slightly less accurate.",
+      "license": "MIT",
+      "licenseUrl": "https://github.com/openai/CLIP/blob/main/LICENSE",
+      "repo": "Xenova/clip-vit-base-patch32",
+      "revision": "d15189d7028b43f1d3e65039190477f6af591c2a",
+      "files": {
+        "vision": {
+          "path": "onnx/vision_model_quantized.onnx",
+          "size": 89117001,
+          "sha256": "583fd1110a514667812fee7d684952aaf82a99b959760c8d7dca7e0ab9839299"
+        },
+        "text": {
+          "path": "onnx/text_model_quantized.onnx",
+          "size": 64504507,
+          "sha256": "73baab855d406190da9faa498cfedf65f15cf309f4cc7385b7b032e6d08e5c3a"
+        },
+        "tokenizer": {
+          "path": "tokenizer.json",
+          "size": 2224119,
+          "sha256": "f7f3b7af117d467b58374797691a6438d3e6b9e9cef800dfd5dced7f697a90cd"
+        }
+      },
+      "image": {
+        "size": 224,
+        "resize": "shortest_edge",
+        "resample": "bicubic",
+        "mean": [
+          0.48145466,
+          0.4578275,
+          0.40821073
+        ],
+        "std": [
+          0.26862954,
+          0.26130258,
+          0.27577711
+        ]
+      },
+      "text": {
+        "maxLength": 77,
+        "padTo": null,
+        "padId": 0
+      }
+    },
+    {
+      "id": "clip-vit-b16",
+      "name": "CLIP ViT-B/16",
+      "family": "clip",
+      "description": "OpenAI CLIP with finer image patches: more accurate than B/32, about 2.5x slower to index.",
+      "license": "MIT",
+      "licenseUrl": "https://github.com/openai/CLIP/blob/main/LICENSE",
+      "repo": "Xenova/clip-vit-base-patch16",
+      "revision": "342fdf2f67aded64d138ff074745fb4a5d2bba5f",
+      "files": {
+        "vision": {
+          "path": "onnx/vision_model.onnx",
+          "size": 345060583,
+          "sha256": "b5170b47c0ecc667c9af5b42ed460c341377706d1466d177798c65fe49ea1e6b"
+        },
+        "text": {
+          "path": "onnx/text_model.onnx",
+          "size": 254058553,
+          "sha256": "19f40c7988af119fc50dabfe8015da8595c0372000e2c1f1a6289e35930577aa"
+        },
+        "tokenizer": {
+          "path": "tokenizer.json",
+          "size": 2224081,
+          "sha256": "72ed5c96db5729294468543e4bc75fce14ca63f58e37300290189ba1c1e52b85"
+        }
+      },
+      "image": {
+        "size": 224,
+        "resize": "shortest_edge",
+        "resample": "bicubic",
+        "mean": [
+          0.48145466,
+          0.4578275,
+          0.40821073
+        ],
+        "std": [
+          0.26862954,
+          0.26130258,
+          0.27577711
+        ]
+      },
+      "text": {
+        "maxLength": 77,
+        "padTo": null,
+        "padId": 0
+      }
+    },
+    {
+      "id": "mobileclip-s0",
+      "name": "MobileCLIP-S0",
+      "family": "clip",
+      "description": "Apple's MobileCLIP, smallest variant: indexes as fast as 8-bit CLIP ViT-B/32, with accuracy close to CLIP ViT-B/16.",
+      "license": "Apple AMLR (research use only)",
+      "licenseUrl": "https://huggingface.co/apple/MobileCLIP-S0/blob/main/LICENSE",
+      "licenseNote": "Apple's model license limits use to non-commercial research.",
+      "repo": "Xenova/mobileclip_s0",
+      "revision": "757d59c9c6870a76a4b0306f05f5061bca15c39f",
+      "files": {
+        "vision": {
+          "path": "onnx/vision_model.onnx",
+          "size": 45543630,
+          "sha256": "17d3c037b1d488c10c50e09f6009ea5a198caef4e0e8f4ea5617b7cb2d067ac0"
+        },
+        "text": {
+          "path": "onnx/text_model.onnx",
+          "size": 169807789,
+          "sha256": "f6e9bd5742bfc515889e901634d8a2ff2a57fab8564e4ad3760e800b1a51b77c"
+        },
+        "tokenizer": {
+          "path": "tokenizer.json",
+          "size": 2224081,
+          "sha256": "72ed5c96db5729294468543e4bc75fce14ca63f58e37300290189ba1c1e52b85"
+        }
+      },
+      "image": {
+        "size": 256,
+        "resize": "shortest_edge",
+        "resample": "bilinear",
+        "mean": [
+          0,
+          0,
+          0
+        ],
+        "std": [
+          1,
+          1,
+          1
+        ]
+      },
+      "text": {
+        "maxLength": 77,
+        "padTo": 77,
+        "padId": 0
+      }
+    },
+    {
+      "id": "mobileclip-s2",
+      "name": "MobileCLIP-S2",
+      "family": "clip",
+      "description": "Apple's MobileCLIP, mid-size: more accurate than CLIP ViT-B/16, about 1.5x slower to index than CLIP ViT-B/32.",
+      "license": "Apple AMLR (research use only)",
+      "licenseUrl": "https://huggingface.co/apple/MobileCLIP-S0/blob/main/LICENSE",
+      "licenseNote": "Apple's model license limits use to non-commercial research.",
+      "repo": "Xenova/mobileclip_s2",
+      "revision": "0c311c620b36a2270b851db7bef9135f3eaae5d7",
+      "files": {
+        "vision": {
+          "path": "onnx/vision_model.onnx",
+          "size": 143020962,
+          "sha256": "d28b92d7a3a6ba99bd000cce5c91678c0e279dc934c887a3785908a811872a6c"
+        },
+        "text": {
+          "path": "onnx/text_model.onnx",
+          "size": 253894023,
+          "sha256": "ff82e945c6c652c51df687e10f102a8e43c87d37c9108ff692468be3732f3710"
+        },
+        "tokenizer": {
+          "path": "tokenizer.json",
+          "size": 2224081,
+          "sha256": "72ed5c96db5729294468543e4bc75fce14ca63f58e37300290189ba1c1e52b85"
+        }
+      },
+      "image": {
+        "size": 256,
+        "resize": "shortest_edge",
+        "resample": "bilinear",
+        "mean": [
+          0,
+          0,
+          0
+        ],
+        "std": [
+          1,
+          1,
+          1
+        ]
+      },
+      "text": {
+        "maxLength": 77,
+        "padTo": 77,
+        "padId": 0
+      }
+    },
+    {
+      "id": "mobileclip-b",
+      "name": "MobileCLIP-B",
+      "family": "clip",
+      "description": "Apple's MobileCLIP, largest variant: the most accurate MobileCLIP, speed similar to CLIP ViT-B/16.",
+      "license": "Apple AMLR (research use only)",
+      "licenseUrl": "https://huggingface.co/apple/MobileCLIP-S0/blob/main/LICENSE",
+      "licenseNote": "Apple's model license limits use to non-commercial research.",
+      "repo": "Xenova/mobileclip_b",
+      "revision": "2a46554c6fbe5cc0e231c5cab39400787a0ff675",
+      "files": {
+        "vision": {
+          "path": "onnx/vision_model.onnx",
+          "size": 345594507,
+          "sha256": "40c0f78899bd09de6c6d337bf9b863f80a81bf9c608ee79d47218a39c7393816"
+        },
+        "text": {
+          "path": "onnx/text_model.onnx",
+          "size": 253902061,
+          "sha256": "e1377ec8c8e07cb275170eb0179eccd02c12643f5b4297207958ef4b6e071631"
+        },
+        "tokenizer": {
+          "path": "tokenizer.json",
+          "size": 2224081,
+          "sha256": "72ed5c96db5729294468543e4bc75fce14ca63f58e37300290189ba1c1e52b85"
+        }
+      },
+      "image": {
+        "size": 224,
+        "resize": "shortest_edge",
+        "resample": "bilinear",
+        "mean": [
+          0,
+          0,
+          0
+        ],
+        "std": [
+          1,
+          1,
+          1
+        ]
+      },
+      "text": {
+        "maxLength": 77,
+        "padTo": 77,
+        "padId": 0
+      }
+    },
+    {
+      "id": "siglip-b16-224",
+      "name": "SigLIP B/16 (224)",
+      "family": "siglip",
+      "description": "Google's SigLIP: typically more accurate than CLIP of the same size, about 3.5x slower to index than CLIP ViT-B/32. Scores use a different scale: good matches are often only 0.05 to 0.15.",
+      "license": "Apache-2.0",
+      "licenseUrl": "https://huggingface.co/google/siglip-base-patch16-224",
+      "repo": "Xenova/siglip-base-patch16-224",
+      "revision": "4649052661e53c7000355844105f8a1792088239",
+      "files": {
+        "vision": {
+          "path": "onnx/vision_model.onnx",
+          "size": 371819850,
+          "sha256": "f89d41bac7f4d4b87e010a467d93f98689d708916ed22f5a07f96fdfa26f475f"
+        },
+        "text": {
+          "path": "onnx/text_model.onnx",
+          "size": 441332132,
+          "sha256": "3aa7fdbd20eaa8740cce17bf82913de641fcb632a768fed59f661cdcd0c32553"
+        },
+        "tokenizer": {
+          "path": "tokenizer.json",
+          "size": 2398744,
+          "sha256": "4a17c975210be5ab4c36b47d8dae4eefb866dbfb1e676e394aad85dc30a3ae08"
+        }
+      },
+      "image": {
+        "size": 224,
+        "resize": "exact",
+        "resample": "bicubic",
+        "mean": [
+          0.5,
+          0.5,
+          0.5
+        ],
+        "std": [
+          0.5,
+          0.5,
+          0.5
+        ]
+      },
+      "text": {
+        "maxLength": 64,
+        "padTo": 64,
+        "padId": 1
+      }
+    },
+    {
+      "id": "siglip-b16-224-q8",
+      "name": "SigLIP B/16 (224, 8-bit)",
+      "family": "siglip",
+      "description": "SigLIP B/16 quantized to 8 bits: about 4x smaller and faster, slightly less accurate.",
+      "license": "Apache-2.0",
+      "licenseUrl": "https://huggingface.co/google/siglip-base-patch16-224",
+      "repo": "Xenova/siglip-base-patch16-224",
+      "revision": "4649052661e53c7000355844105f8a1792088239",
+      "files": {
+        "vision": {
+          "path": "onnx/vision_model_quantized.onnx",
+          "size": 99499129,
+          "sha256": "ef14a954f3d57e1806666432bd9785004c1dc27100aa260eee0cb0f10a5de058"
+        },
+        "text": {
+          "path": "onnx/text_model_quantized.onnx",
+          "size": 111475220,
+          "sha256": "ad0329b1f35acc66d8953ff2559ce358da8eb0a7011794cf951523d63a4dbce2"
+        },
+        "tokenizer": {
+          "path": "tokenizer.json",
+          "size": 2398744,
+          "sha256": "4a17c975210be5ab4c36b47d8dae4eefb866dbfb1e676e394aad85dc30a3ae08"
+        }
+      },
+      "image": {
+        "size": 224,
+        "resize": "exact",
+        "resample": "bicubic",
+        "mean": [
+          0.5,
+          0.5,
+          0.5
+        ],
+        "std": [
+          0.5,
+          0.5,
+          0.5
+        ]
+      },
+      "text": {
+        "maxLength": 64,
+        "padTo": 64,
+        "padId": 1
+      }
+    },
+    {
+      "id": "siglip-b16-384",
+      "name": "SigLIP B/16 (384)",
+      "family": "siglip",
+      "description": "SigLIP at 384x384 resolution: better on small details, about 3x slower to index than the 224 version.",
+      "license": "Apache-2.0",
+      "licenseUrl": "https://huggingface.co/google/siglip-base-patch16-224",
+      "repo": "Xenova/siglip-base-patch16-384",
+      "revision": "055b1a29f65a948093690309b082c8732095a39a",
+      "files": {
+        "vision": {
+          "path": "onnx/vision_model.onnx",
+          "size": 372990250,
+          "sha256": "5e0d25b65ef651af970bceab982f932125e2f6d6ade6d39389d55fe29e42a69d"
+        },
+        "text": {
+          "path": "onnx/text_model.onnx",
+          "size": 441332132,
+          "sha256": "cb5c34e2a17cfb1e8ee8ebdcb28deed143c17ca049ac95d50b136bdcec79cd1c"
+        },
+        "tokenizer": {
+          "path": "tokenizer.json",
+          "size": 2398746,
+          "sha256": "798a8118466a62b99c98fc111134d76b0905f92debc0536d2602aa5bd97c0ab9"
+        }
+      },
+      "image": {
+        "size": 384,
+        "resize": "exact",
+        "resample": "bicubic",
+        "mean": [
+          0.5,
+          0.5,
+          0.5
+        ],
+        "std": [
+          0.5,
+          0.5,
+          0.5
+        ]
+      },
+      "text": {
+        "maxLength": 64,
+        "padTo": 64,
+        "padId": 1
+      }
+    }
+  ]
+}

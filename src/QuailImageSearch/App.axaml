@@ -1,0 +1,43 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="QuailImageSearch.App"
+             RequestedThemeVariant="Default">
+             <!-- The theme (Fluent or Simple), light/dark and density come from preferences; see Services/Appearance.cs. -->
+
+    <!-- The app's own colours, defined for light and dark so they work with either built-in theme
+         (Simple doesn't have Fluent's System* resources). -->
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="AppPanelBrush" Color="#F2F2F2" />
+                    <SolidColorBrush x:Key="AppDividerBrush" Color="#33000000" />
+                    <SolidColorBrush x:Key="AppTileHoverBrush" Color="#14000000" />
+                    <SolidColorBrush x:Key="AppTileSelectedBrush" Color="#330067C0" />
+                    <SolidColorBrush x:Key="AppAccentBrush" Color="#0067C0" />
+                    <SolidColorBrush x:Key="AppOnAccentBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="AppWarningBrush" Color="#9A5B00" />
+                    <SolidColorBrush x:Key="AppErrorBrush" Color="#C42B1C" />
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="AppPanelBrush" Color="#2B2B2B" />
+                    <SolidColorBrush x:Key="AppDividerBrush" Color="#33FFFFFF" />
+                    <SolidColorBrush x:Key="AppTileHoverBrush" Color="#1AFFFFFF" />
+                    <SolidColorBrush x:Key="AppTileSelectedBrush" Color="#4D4CC2FF" />
+                    <SolidColorBrush x:Key="AppAccentBrush" Color="#4CC2FF" />
+                    <SolidColorBrush x:Key="AppOnAccentBrush" Color="#000000" />
+                    <SolidColorBrush x:Key="AppWarningBrush" Color="#E0A040" />
+                    <SolidColorBrush x:Key="AppErrorBrush" Color="#FF8A80" />
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+
+    <Application.Styles>
+        <FluentTheme />
+        <!-- Every window (main, preview, Preferences, dialogs) shows the app icon. -->
+        <Style Selector="Window">
+            <Setter Property="Icon" Value="/Assets/app.ico" />
+        </Style>
+    </Application.Styles>
+</Application>

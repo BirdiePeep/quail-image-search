@@ -1,0 +1,86 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:QuailImageSearch.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="700"
+        x:Class="QuailImageSearch.Views.PreviewWindow"
+        x:DataType="vm:PreviewViewModel"
+        Title="{Binding Title}"
+        Width="1000" Height="760" MinWidth="360" MinHeight="300"
+        WindowStartupLocation="CenterOwner">
+
+    <Window.Styles>
+        <Style Selector="Button.nav">
+            <Setter Property="Background" Value="#66000000" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Padding" Value="10,24" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Focusable" Value="False" />
+            <Setter Property="Opacity" Value="0.6" />
+        </Style>
+        <Style Selector="Button.nav:pointerover">
+            <Setter Property="Opacity" Value="1" />
+        </Style>
+    </Window.Styles>
+
+    <DockPanel>
+        <!-- Top bar: file name and position; rotate buttons on the right. -->
+        <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto" Margin="12,8">
+            <StackPanel VerticalAlignment="Center" Spacing="2">
+                <TextBlock Text="{Binding Item.FileName, FallbackValue=''}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                <TextBlock Text="{Binding Info}" FontSize="12" Opacity="0.7" TextTrimming="CharacterEllipsis" />
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" Margin="12,0,0,0">
+                <Button Command="{Binding RotateLeftCommand}" IsEnabled="{Binding CanRotate}" Focusable="False"
+                        ToolTip.Tip="{Binding RotateTip, StringFormat='Rotate left (Shift+R). {0}'}" ToolTip.ShowOnDisabled="True">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <PathIcon Width="16" Height="16"
+                                  Data="M7.11 8.53L5.7 7.11C4.8 8.27 4.24 9.61 4.07 11h2.02c.14-.87.49-1.72 1.02-2.47zM6.09 13H4.07c.17 1.39.72 2.73 1.62 3.89l1.41-1.42c-.52-.75-.87-1.59-1.01-2.47zm1.01 5.32c1.16.9 2.51 1.44 3.9 1.61V17.9c-.87-.15-1.71-.49-2.46-1.03L7.1 18.32zM13 4.07V1L8.45 5.55 13 10V6.09c2.84.48 5 2.94 5 5.91s-2.16 5.43-5 5.91v2.02c3.95-.49 7-3.85 7-7.93s-3.05-7.44-7-7.93z" />
+                        <TextBlock Text="Rotate left" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+                <Button Command="{Binding RotateRightCommand}" IsEnabled="{Binding CanRotate}" Focusable="False"
+                        ToolTip.Tip="{Binding RotateTip, StringFormat='Rotate right (R). {0}'}" ToolTip.ShowOnDisabled="True">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <PathIcon Width="16" Height="16"
+                                  Data="M15.55 5.55L11 1v3.07C7.06 4.56 4 7.92 4 12s3.05 7.44 7 7.93v-2.02c-2.84-.48-5-2.94-5-5.91s2.16-5.43 5-5.91V10l4.55-4.45zM19.93 11c-.17-1.39-.72-2.73-1.62-3.89l-1.42 1.42c.54.75.88 1.6 1.02 2.47h2.02zM13 17.9v2.02c1.39-.17 2.74-.71 3.9-1.61l-1.44-1.44c-.75.54-1.59.89-2.46 1.03zm3.89-2.42l1.42 1.41c.9-1.16 1.45-2.5 1.62-3.89h-2.02c-.14.87-.48 1.72-1.02 2.48z" />
+                        <TextBlock Text="Rotate right" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <!-- Status line (errors, "rotated and saved"). -->
+        <TextBlock DockPanel.Dock="Bottom" Text="{Binding Message}" FontSize="12" Opacity="0.8" Margin="12,4,12,8"
+                   TextWrapping="Wrap"
+                   IsVisible="{Binding Message, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+
+        <Grid Background="#101010">
+            <!-- Shown at its own size, or scaled down to fit (small images aren't blown up). -->
+            <Image Source="{Binding Image}" Stretch="Uniform" StretchDirection="DownOnly" Margin="8">
+                <!-- Same actions as a result tile's menu, for the image shown here. -->
+                <Image.ContextMenu>
+                    <ContextMenu IsEnabled="{Binding HasItem}">
+                        <MenuItem Header="Open" InputGesture="Enter" Click="Open_Click" />
+                        <MenuItem Header="Show in folder" Click="ShowInFolder_Click" />
+                        <MenuItem Header="Copy" InputGesture="Ctrl+C" Click="Copy_Click" />
+                        <MenuItem Header="Find similar" Click="FindSimilar_Click" />
+                        <Separator />
+                        <MenuItem Header="Delete" InputGesture="Delete" Click="Delete_Click" />
+                    </ContextMenu>
+                </Image.ContextMenu>
+            </Image>
+            <TextBlock Text="{Binding Info}" Foreground="#C0C0C0" HorizontalAlignment="Center" VerticalAlignment="Center"
+                       IsVisible="{Binding !HasItem}" />
+            <Button Classes="nav" HorizontalAlignment="Left" Margin="8,0,0,0" Command="{Binding PreviousCommand}"
+                    ToolTip.Tip="Previous image (Left arrow)" IsVisible="{Binding HasItem}">
+                <PathIcon Width="18" Height="18" Data="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
+            </Button>
+            <Button Classes="nav" HorizontalAlignment="Right" Margin="0,0,8,0" Command="{Binding NextCommand}"
+                    ToolTip.Tip="Next image (Right arrow)" IsVisible="{Binding HasItem}">
+                <PathIcon Width="18" Height="18" Data="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
+            </Button>
+        </Grid>
+    </DockPanel>
+</Window>

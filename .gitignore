@@ -1,0 +1,45 @@
+# Build outputs (scripts\build.ps1 writes release packages to artifacts\)
+bin/
+obj/
+artifacts/
+TestResults/
+
+# IDE and editor files
+.vs/
+.idea/
+.vscode/
+*.user
+*.suo
+*.DotSettings.user
+*.swp
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Local data: datasets, models and caches (the app keeps its own data in %APPDATA%\QuailImageSearch)
+datasets/
+incomming-icons/
+.imagesearch-features/
+*.onnx
+*.onnx.data
+
+# Logs and temp files
+*.log
+*.tmp
+
+# Secrets and signing keys
+.env
+*.pfx
+*.p12
+
+# Claude Code local settings
+.claude/settings.local.json
